@@ -1127,11 +1127,11 @@ outras funções auxiliares que sejam necessárias.
 \begin{code}
 
 inExpr :: Either Int (Op,(Expr,Expr)) -> Expr
-inExpr = either Num uncurriedBop
+inExpr = either Num (((uncurry.uncurry)Bop).((swap><id).assocl))
 
 outExpr :: Expr -> Either Int (Op,(Expr,Expr))
 outExpr (Num a) = i1 a
-outExpr (Bop b a c) = i2 (a,(b,c))
+outExpr (Bop e1 o e2) = i2 (o,(e1,e2))
 
 recExpr f = baseExpr id f
 
@@ -1139,7 +1139,7 @@ cataExpr g = g . (recExpr (cataExpr g)) . outExpr
 
 anaExpr g = inExpr . (recExpr (anaExpr g) ) . g
 
-hyloBTree h g = cataExpr h . anaExpr g
+hyloExpr h g = cataExpr h . anaExpr g
 
 calcula :: Expr -> Int
 calcula = undefined
