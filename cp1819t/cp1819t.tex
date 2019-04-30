@@ -1797,18 +1797,20 @@ outras funções auxiliares que sejam necessárias.
 
 \subsection*{Problema 1}
 
+1.
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{inExpr}\mathbin{::}\Conid{Int}+(\Conid{Op},(\Conid{Expr},\Conid{Expr}))\to \Conid{Expr}{}\<[E]%
 \\
-\>[B]{}\Varid{inExpr}\mathrel{=}\alt{\Conid{Num}}{\Varid{uncurriedBop}}{}\<[E]%
+\>[B]{}\Varid{inExpr}\mathrel{=}\alt{\Conid{Num}}{((\uncurry{\cdot }\comp \uncurry{\cdot })\;\Conid{Bop})\comp ((\Varid{swap}\times\Varid{id})\comp \Varid{assocl})}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{outExpr}\mathbin{::}\Conid{Expr}\to \Conid{Int}+(\Conid{Op},(\Conid{Expr},\Conid{Expr})){}\<[E]%
 \\
 \>[B]{}\Varid{outExpr}\;(\Conid{Num}\;\Varid{a})\mathrel{=}i_1\;\Varid{a}{}\<[E]%
 \\
-\>[B]{}\Varid{outExpr}\;(\Conid{Bop}\;\Varid{b}\;\Varid{a}\;\Varid{c})\mathrel{=}i_2\;(\Varid{a},(\Varid{b},\Varid{c})){}\<[E]%
+\>[B]{}\Varid{outExpr}\;(\Conid{Bop}\;e_1 \;\Varid{o}\;e_2 )\mathrel{=}i_2\;(\Varid{o},(e_1 ,e_2 )){}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{recExpr}\;\Varid{f}\mathrel{=}\Varid{baseExpr}\;\Varid{id}\;\Varid{f}{}\<[E]%
 \\[\blanklineskip]%
@@ -1816,23 +1818,59 @@ outras funções auxiliares que sejam necessárias.
 \\[\blanklineskip]%
 \>[B]{}\Varid{anaExpr}\;\Varid{g}\mathrel{=}\Varid{inExpr}\comp (\Varid{recExpr}\;(\Varid{anaExpr}\;\Varid{g}))\comp \Varid{g}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{hyloBTree}\;\Varid{h}\;\Varid{g}\mathrel{=}\Varid{cataExpr}\;\Varid{h}\comp \Varid{anaExpr}\;\Varid{g}{}\<[E]%
-\\[\blanklineskip]%
+\>[B]{}\Varid{hyloExpr}\;\Varid{h}\;\Varid{g}\mathrel{=}\Varid{cataExpr}\;\Varid{h}\comp \Varid{anaExpr}\;\Varid{g}{}\<[E]%
+\\
+\>[B]{}\Varid{uncurriedBop}\mathbin{::}(\Conid{Op},(\Conid{Expr},\Conid{Expr}))\to \Conid{Expr}{}\<[E]%
+\\
+\>[B]{}\Varid{uncurriedBop}\;(\Varid{a},(\Varid{b},\Varid{c}))\mathrel{=}\Conid{Bop}\;\Varid{b}\;\Varid{a}\;\Varid{c}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+2.
+
+calcula definido como catamorfismo visto que o que pretendemos é perder informação, transformar uma expressão no seu resultado:
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{\Conid{Expr}}
+           \ar[d]_-{\ensuremath{\Varid{calcula}}}
+&
+    \ensuremath{\Conid{Int}\mathbin{+}(\Conid{Op}\times(\Conid{Expr}\times\Conid{Expr}))}
+           \ar[d]^{\ensuremath{\Varid{id}\mathbin{+}(\Varid{id}\times(\Varid{calcula}\times\Varid{calcula}))}}
+           \ar[l]_-{\ensuremath{\Varid{inExpr}}}
+\\
+     \ensuremath{\Conid{Int}}
+&
+     \ensuremath{\Conid{Int}\mathbin{+}(\Conid{Op}\times(\Conid{Int}\times\Conid{Int}))}
+           \ar[l]^-{\ensuremath{[\mskip1.5mu \Varid{id},\Varid{calcop}\mskip1.5mu]}}
+}
+\end{eqnarray*}
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{15}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{21}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{calcula}\mathbin{::}\Conid{Expr}\to \Conid{Int}{}\<[E]%
 \\
-\>[B]{}\Varid{calcula}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{calcula}\mathrel{=}\Varid{cataExpr}\;\alt{\Varid{id}}{\Varid{calcop}}{}\<[E]%
+\\
+\>[B]{}\hsindent{15}{}\<[15]%
+\>[15]{}\mathbf{where}\;\Varid{calcop}\;(\Conid{Op}\;\text{\tt \char34 +\char34},(e_1 ,e_2 ))\mathrel{=}e_1 \mathbin{+}e_2 {}\<[E]%
+\\
+\>[15]{}\hsindent{6}{}\<[21]%
+\>[21]{}\Varid{calcop}\;(\Conid{Op}\;\text{\tt \char34 *\char34},(e_1 ,e_2 ))\mathrel{=}e_1 \mathbin{*}e_2 {}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{show'}\mathrel{=}\bot {}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{compile}\mathbin{::}\Conid{String}\to \Conid{Codigo}{}\<[E]%
 \\
 \>[B]{}\Varid{compile}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{uncurriedBop}\mathbin{::}(\Conid{Op},(\Conid{Expr},\Conid{Expr}))\to \Conid{Expr}{}\<[E]%
-\\
-\>[B]{}\Varid{uncurriedBop}\;(\Varid{a},(\Varid{b},\Varid{c}))\mathrel{=}\Conid{Bop}\;\Varid{b}\;\Varid{a}\;\Varid{c}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
+
+
+
+
 
 \subsection*{Problema 2}
 

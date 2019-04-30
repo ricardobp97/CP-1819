@@ -1124,8 +1124,9 @@ outras funções auxiliares que sejam necessárias.
 
 \subsection*{Problema 1}
 
-\begin{code}
+1.
 
+\begin{code}
 inExpr :: Either Int (Op,(Expr,Expr)) -> Expr
 inExpr = either Num (((uncurry.uncurry)Bop).((swap><id).assocl))
 
@@ -1140,18 +1141,49 @@ cataExpr g = g . (recExpr (cataExpr g)) . outExpr
 anaExpr g = inExpr . (recExpr (anaExpr g) ) . g
 
 hyloExpr h g = cataExpr h . anaExpr g
+uncurriedBop :: (Op,(Expr,Expr)) -> Expr
+uncurriedBop (a,(b,c)) = Bop b a c
+\end{code}
 
+2.
+
+calcula definido como catamorfismo visto que o que pretendemos é perder informação, transformar uma expressão no seu resultado:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Expr|
+           \ar[d]_-{|calcula|}
+&
+    |Int + (Op >< (Expr >< Expr))|
+           \ar[d]^{|id + (id >< (calcula >< calcula))|}
+           \ar[l]_-{|inExpr|}
+\\
+     |Int|
+&
+     |Int + (Op >< (Int >< Int))|
+           \ar[l]^-{|[id,calcop]|}
+}
+\end{eqnarray*}
+
+\begin{code}
 calcula :: Expr -> Int
-calcula = undefined
+calcula = cataExpr (either id calcop)
+              where calcop (Op "+",(e1,e2)) = e1+e2
+                    calcop (Op "*",(e1,e2)) = e1*e2
+\end{code}
 
+3.
+
+\begin{code}
 show' = undefined
 
 compile :: String -> Codigo
 compile = undefined
 
-uncurriedBop :: (Op,(Expr,Expr)) -> Expr
-uncurriedBop (a,(b,c)) = Bop b a c
 \end{code}
+
+
+
+
 
 \subsection*{Problema 2}
 
