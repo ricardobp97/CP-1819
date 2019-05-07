@@ -1859,12 +1859,92 @@ calcula definido como catamorfismo visto que o que pretendemos é perder informa
 \\
 \>[15]{}\hsindent{6}{}\<[21]%
 \>[21]{}\Varid{calcop}\;(\Conid{Op}\;\text{\tt \char34 *\char34},(e_1 ,e_2 ))\mathrel{=}e_1 \mathbin{*}e_2 {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{show'}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+3.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{compile}\mathbin{::}\Conid{String}\to \Conid{Codigo}{}\<[E]%
 \\
-\>[B]{}\Varid{compile}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{compile}\mathrel{=}\Varid{hyloExpr}\;\Varid{conqCompile}\;\Varid{divCompile}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a string, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressoes em que as operações se encontram na raiz e nas folhas os números, sendo que as operaçoes  vão aumentando de prioridade assim que se desce na árvore.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{5}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{19}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{divCompile}\mathbin{::}\Conid{String}\to \Conid{Int}+(\Conid{Op},(\Conid{String},\Conid{String})){}\<[E]%
+\\
+\>[B]{}\Varid{divCompile}\;[\mskip1.5mu \Varid{x}\mskip1.5mu]\mathrel{=}i_1\;(\Varid{digitToInt}\;(\Varid{x})){}\<[E]%
+\\
+\>[B]{}\Varid{divCompile}\;\Varid{l}\mathrel{=}i_2\;((\Conid{Op}\;[\mskip1.5mu \Varid{c}\mskip1.5mu]),(\Varid{slice}\;\mathrm{0}\;\Varid{p}\;\Varid{l},\Varid{slice}\;(\Varid{p}\mathbin{+}\mathrm{1})\;(\length \;(\Varid{l}))\;\Varid{l})){}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mathbf{where}\;(\Varid{p},\Varid{c})\mathrel{=}\Varid{auxCompile}\;\Varid{l}\;\mathrm{0}\;\mathrm{0}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{auxCompile}\mathbin{::}\Conid{String}\to \Conid{Int}\to \Conid{Int}\to (\Conid{Int},\Conid{Char}){}\<[E]%
+\\
+\>[B]{}\Varid{auxCompile}\;(\Varid{h}\mathbin{:}\Varid{t})\;\Varid{c}\;\Varid{p}{}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\mid (\Varid{h}\equiv \text{\tt '('})\mathrel{=}\Varid{auxCompile}\;\Varid{t}\;(\Varid{c}\mathbin{+}\mathrm{1})\;(\Varid{p}\mathbin{+}\mathrm{1}){}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\mid (\Varid{h}\equiv \text{\tt ')'})\mathrel{=}\Varid{auxCompile}\;\Varid{t}\;(\Varid{c}\mathbin{-}\mathrm{1})\;(\Varid{p}\mathbin{+}\mathrm{1}){}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\mid (\Varid{h}\equiv \text{\tt '+'}\mathrel{\vee}\Varid{h}\equiv \text{\tt '*'})\mathrel{\wedge}\Varid{c}\equiv \mathrm{0}\mathrel{=}(\Varid{p},\Varid{h}){}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\mid \Varid{otherwise}\mathrel{=}\Varid{auxCompile}\;\Varid{t}\;\Varid{c}\;(\Varid{p}\mathbin{+}\mathrm{1}){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{slice}\mathbin{::}\Conid{Int}\to \Conid{Int}\to \Conid{String}\to \Conid{String}{}\<[E]%
+\\
+\>[B]{}\Varid{slice}\;\Varid{start}\;\Varid{end}\;\Varid{string}\mathrel{=}\mathbf{if}\;(\Varid{head}\;(\Varid{firstslice})\equiv \text{\tt '('})\;\mathbf{then}\;(\Varid{slice}\;(\Varid{start}\mathbin{+}\mathrm{1})\;(\Varid{end}\mathbin{-}\mathrm{1})\;\Varid{string})\;\mathbf{else}\;\Varid{firstslice}{}\<[E]%
+\\
+\>[B]{}\hsindent{5}{}\<[5]%
+\>[5]{}\mathbf{where}\;\Varid{firstslice}\mathrel{=}\Varid{take}\;(\Varid{end}\mathbin{-}\Varid{start})\;(\Varid{drop}\;\Varid{start}\;\Varid{string}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+De seguida definimos o catamorfismo.....
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{14}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{19}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{conqCompile}\mathbin{::}\Conid{Int}+(\Conid{Op},(\Conid{Codigo},\Conid{Codigo}))\to \Conid{Codigo}{}\<[E]%
+\\
+\>[B]{}\Varid{conqCompile}{}\<[14]%
+\>[14]{}\mathrel{=}\alt{\Varid{asda}}{\Varid{auxConq}}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{asda}\mathbin{::}\Conid{Int}\to \Conid{Codigo}{}\<[E]%
+\\
+\>[B]{}\Varid{asda}\;\Varid{a}\mathrel{=}[\mskip1.5mu \text{\tt \char34 PUSH~\char34}\plus \Varid{show}\;(\Varid{a})\mskip1.5mu]{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{auxConq}\;(\Varid{op},(\Varid{c1},\Varid{c2})){}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\mid \Varid{op}\equiv (\Conid{Op}\;\text{\tt \char34 +\char34})\mathrel{=}\Varid{c1}\plus \Varid{c2}\plus [\mskip1.5mu \text{\tt \char34 ADD\char34}\mskip1.5mu]{}\<[E]%
+\\
+\>[B]{}\hsindent{19}{}\<[19]%
+\>[19]{}\mid \Varid{op}\equiv (\Conid{Op}\;\text{\tt \char34 *\char34})\mathrel{=}\Varid{c1}\plus \Varid{c2}\plus [\mskip1.5mu \text{\tt \char34 MUL\char34}\mskip1.5mu]{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{show'}\mathrel{=}\bot {}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 

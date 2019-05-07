@@ -192,6 +192,7 @@ import Control.Monad
 import Control.Applicative hiding ((<|>))
 import Data.Either
 import Exp
+import Data.Char
 \end{code}
 %endif
 
@@ -1174,11 +1175,50 @@ calcula = cataExpr (either id calcop)
 3.
 
 \begin{code}
-show' = undefined
-
 compile :: String -> Codigo
-compile = undefined
+compile = hyloExpr conqCompile divCompile
+\end{code}
 
+A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a string, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressoes em que as operações se encontram na raiz e nas folhas os números, sendo que as operaçoes  vão aumentando de prioridade assim que se desce na árvore.
+
+\begin{code}
+divCompile :: String -> Either Int (Op,(String , String))
+divCompile [x] = i1 (digitToInt(x))
+divCompile l = i2((Op [c]),( slice 0 p l , slice (p+1) (length(l)) l )) 
+    where (p , c) = auxCompile l 0 0
+
+auxCompile :: String -> Int -> Int -> (Int , Char)
+auxCompile (h:t) c p
+                  | (h == '(') = auxCompile t (c+1) (p+1)
+                  | (h == ')') = auxCompile t (c-1) (p+1)
+                  | (h == '+' || h == '*' ) && c==0 = (p,h)
+                  | otherwise = auxCompile t c (p+1)
+
+slice :: Int -> Int -> String -> String
+slice start end string = if(head(firstslice)=='(') then (slice (start+1) (end-1) string) else firstslice
+    where firstslice = take(end - start) (drop start string) 
+
+
+\end{code}
+
+De seguida definimos o catamorfismo.....
+
+\begin{code}
+
+conqCompile :: Either Int (Op, (Codigo, Codigo)) -> Codigo
+conqCompile  = either asda auxConq
+
+asda :: Int -> Codigo
+asda a = ["PUSH "++show(a)]
+
+auxConq (op,(c1,c2)) 
+                  | op == (Op "+") = c1 ++ c2 ++ ["ADD"]
+                  | op == (Op "*") = c1 ++ c2 ++ ["MUL"]
+\end{code}
+
+
+\begin{code}
+show' = undefined
 \end{code}
 
 
