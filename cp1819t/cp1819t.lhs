@@ -1218,7 +1218,15 @@ auxConq (op,(c1,c2))
 
 
 \begin{code}
-show' = undefined
+show' :: Expr -> String
+show' = auxShow . cataExpr (either show g)
+
+auxShow s = take(length(s) -2) (drop 1 s)
+
+g :: (Op,(String,String)) -> String
+g (op,(s1,s2))
+        | op == (Op "+") = ['('] ++ s1 ++ ['+'] ++ s2 ++ [')']
+        | op == (Op "*") = ['('] ++ s1 ++ ['*'] ++ s2 ++ [')']
 \end{code}
 
 
