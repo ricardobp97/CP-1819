@@ -1170,6 +1170,11 @@ calcula :: Expr -> Int
 calcula = cataExpr (either id calcop)
               where calcop (Op "+",(e1,e2)) = e1+e2
                     calcop (Op "*",(e1,e2)) = e1*e2
+
+-- versao alternativa pointfree
+
+calcula' :: Expr -> Int
+calcula' = cataExpr (either id (cond (((Op "+")==).p1) (fromIntegral.add.(toInteger><toInteger).p2) (fromIntegral.mul.(toInteger><toInteger).p2)))
 \end{code}
 
 3.
@@ -1177,6 +1182,10 @@ calcula = cataExpr (either id calcop)
 \begin{code}
 compile :: String -> Codigo
 compile = hyloExpr conqCompile divCompile
+
+--versao alternativa pointfree
+compile' :: String -> Codigo
+compile' = hyloExpr conqCompile' divCompile'
 \end{code}
 
 A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a string, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressoes em que as operações se encontram na raiz e nas folhas os números, sendo que as operaçoes  vão aumentando de prioridade assim que se desce na árvore.
@@ -1198,7 +1207,18 @@ slice :: Int -> Int -> String -> String
 slice start end string = if(head(firstslice)=='(') then (slice (start+1) (end-1) string) else firstslice
     where firstslice = take(end - start) (drop start string) 
 
+-- versao alternativa pointfree divcompile e slice
 
+divCompile' :: String -> Either Int (Op,(String , String))
+divCompile' [x] = i1 (digitToInt(x))
+divCompile' l = i2( (Op [c]) , (  slice'(l,(0,p)) , slice'(l,((p+1),(length(l)))) )) 
+    where (p , c) = auxCompile l 0 0
+
+substring :: (String,(Int,Int)) -> String
+substring = ((uncurry take).swap. (id><(uncurry subtract))).(split ((uncurry drop).swap.(id><p1)) p2)
+
+slice' :: (String,(Int,Int)) -> String
+slice' = (cond (('('==).head.p1) (slice'.(id><(succ><pred)).p2) p1).(split substring id)
 \end{code}
 
 De seguida definimos o catamorfismo.....
@@ -1214,14 +1234,20 @@ asda a = ["PUSH "++show(a)]
 auxConq (op,(c1,c2)) 
                   | op == (Op "+") = c1 ++ c2 ++ ["ADD"]
                   | op == (Op "*") = c1 ++ c2 ++ ["MUL"]
+
+-- versao alternativa pointfree conqcompile e auxiliares
+conqCompile' = either (singl.conc.(split (const "PUSH ") show)) (cond (((Op "+")==).p1) (conc.swap.((const ["ADD"])><conc)) (conc.swap.((const ["MUL"])><conc)) )
 \end{code}
 
 
 \begin{code}
 show' :: Expr -> String
-show' = auxShow . cataExpr (either show g)
+show' = cataExpr (either shownum g)
 
-auxShow s = take(length(s) -2) (drop 1 s)
+shownum a = if(a<0) then ['(']++(show a)++[')'] else (show a)
+
+auxShow s = substring(s,(1,(length(s)-1))) 
+
 
 g :: (Op,(String,String)) -> String
 g (op,(s1,s2))
