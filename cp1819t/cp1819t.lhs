@@ -1241,8 +1241,8 @@ conqCompile' = either (singl.conc.(split (const "PUSH ") show)) (cond (((Op "+")
 
 
 \begin{code}
-show' :: Expr -> String
-show' = cataExpr (either shownum g)
+show'' :: Expr -> String
+show'' = cataExpr (either shownum g)
 
 shownum a = if(a<0) then ['(']++(show a)++[')'] else (show a)
 
@@ -1253,6 +1253,24 @@ g :: (Op,(String,String)) -> String
 g (op,(s1,s2))
         | op == (Op "+") = ['('] ++ s1 ++ ['+'] ++ s2 ++ [')']
         | op == (Op "*") = ['('] ++ s1 ++ ['*'] ++ s2 ++ [')']
+
+--versão alternativa nenhuma versao funciona?????????
+show' :: Expr -> String
+show' = rempara . cataExpr (either g1 g2)
+
+g1 :: Int -> String
+g1 = cond (0<=) (show) (paravolta.show) 
+
+g2 :: (Op,(String,String)) -> String
+g2 (op,(s1,s2)) = if (op==(Op "+")) then paravolta(s1++['+']++s2) 
+                                    else paravolta(s1++['*']++s2)
+
+paravolta :: String -> String
+paravolta s = ['('] ++ s ++ [')']
+
+rempara s = if(length(s)>4) then substring(s,(1,(length(s)-1)))
+                            else s
+
 \end{code}
 
 
@@ -1263,22 +1281,30 @@ g (op,(s1,s2))
 
 \begin{code}
 inL2D :: Either a (b, (X a b,X a b)) -> X a b
-inL2D = undefined
+inL2D = either Unid asd
+
+asd (a,(b,c)) = Comp a b c
 
 outL2D :: X a b -> Either a (b, (X a b,X a b))
-outL2D = undefined
+outL2D (Unid a) = i1(a)
+outL2D (Comp a b c) = i2(a,(b,c))
 
-recL2D f = undefined
+{--
+????baseL2D f g = id -|- (f >< (g >< g))
 
-cataL2D g = undefined
+???recL2D f = baseL2D id f
 
-anaL2D g = undefined
+cataL2D g = g . (recL2D (cataL2D g)) . outL2D
+
+anaL2D g = inL2D . (recL2D (anaL2D g) ) . g
 
 collectLeafs = undefined
 
 dimen :: X Caixa Tipo -> (Float, Float)
-dimen = undefined
+dimen = auxas
 
+auxas _ (a,_) t = a
+--}
 calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins = undefined
 
