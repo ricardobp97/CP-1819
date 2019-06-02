@@ -1317,10 +1317,22 @@ caixasAndOrigin2Pict = undefined
 \subsection*{Problema 3}
 Solução:
 \begin{code}
+coss x 0 = 1
+coss x (n+1) = (coss x n) + (h x n)
+
+h x 0 = -(x^2)/2
+h x (n+1) = ( h x n )* (-(x^2))/((a n) * (b n))
+
+a 0 = 4
+a (n+1) = 2 + a n 
+
+b 0 = 3
+b (n+1) = 2 + b n 
+
 cos' x = prj . for loop init where
-   loop = undefined
-   init = undefined
-   prj = undefined
+   loop(coss,h,a,b) = (coss+h,h*(-(x^2))/(a*b),2+a,2+b)
+   init = (1,-(x^2)/2,4,3) 
+   prj(coss,h,a,b) = coss 
 \end{code}
 
 \subsection*{Problema 4}
