@@ -1338,8 +1338,26 @@ cos' x = prj . for loop init where
 \subsection*{Problema 4}
 Triologia ``ana-cata-hilo":
 \begin{code}
-outFS (FS l) = undefined
-outNode = undefined
+{-- 
+        apagar depois
+         
+  inFS :: [(a, Either b (FS a b))] -> FS a b
+  inFS = FS . map (id >< inNode)
+
+  inNode :: Either b (FS a b) -> Node a b
+  inNode = either File Dir
+
+exemplo
+(inFS.outFS) (FS [("f1", File "Ola"),("d1", Dir (FS [("f2", File "Ole"),("f3", File "Ole")]))])
+--} 
+
+
+outFS (FS l) = (map (id >< outNode)) l
+
+outNode (File f) = (i1 f)
+outNode (Dir f) = (i2 f) 
+
+
 
 baseFS f g h = undefined
 
