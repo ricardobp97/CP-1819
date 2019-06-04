@@ -1358,16 +1358,15 @@ outNode (File f) = (i1 f)
 outNode (Dir f) = (i2 f) 
 
 
-
-baseFS f g h = undefined
+baseFS f g h = map(f >< (g -|- h))
 
 cataFS :: ([(a, Either b c)] -> c) -> FS a b -> c
-cataFS g = undefined
+cataFS g = g . (recFS (cataFS g)) . outFS
 
 anaFS :: (c -> [(a, Either b c)]) -> c -> FS a b
-anaFS g = undefined
+anaFS g = inFS . (recFS (anaFS g) ) . g
 
-hyloFS g h = undefined
+hyloFS g h = cataFS g . anaFS h
 \end{code}
 Outras funções pedidas:
 \begin{code}
