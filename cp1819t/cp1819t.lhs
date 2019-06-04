@@ -1386,22 +1386,47 @@ repetidos (h:t) = if(x h t) then False else repetidos t
                   x h [] = False
                   x h (y:ys) = if(h==y) then True else x h ys
 
+{----------melhoramentos----------------------------------------------------------------------------------------}
+
 tar :: FS a b -> [(Path a, b)]
-tar = cataFS (    map(auxjun).map(id >< (either (auxtar) (id)))               )
+tar = cataFS( juntar.map( a2 ) )
 
-auxjun (nome,((path,b):xs)) = ([nome]++path,b) : auxjun (nome,xs)
+a2 (a,(Left b)) = [([a],b)]
+a2 (a,(Right [] )) = []
+a2 (a,(Right ((x,y):xs))) = ([a]++x,y)  : a2 (a,Right xs)
 
-auxtar b =  [([],b)]
+juntar [] = []
+juntar (x:xs) = x ++ juntar xs
 
+{-------feito-------------------------------------------------------------------------------------------}
 
 untar :: (Eq a) => [(Path a, b)] -> FS a b
-untar = undefined
+untar = joinDupDirs.anaFS( map(intar) ) 
+
+intar ([a],b) = (a,i1 b)
+intar ((x:xs),b) = (x,i2 [(xs,b)])
+
+{-------------------
+---------- duvidoso ---------------------------------------------------------------------}
 
 find :: (Eq a) => a -> FS a b -> [Path a]
-find = undefined
+find = uncurriedFind
+
+uncurriedFind a fs = teste1(a,tar(fs))
+
+teste1 :: (Eq a) => (a, [(Path a, b)]) -> [Path a]
+teste1 (a,[]) = []
+teste1 (a,(l,_):xs) = if(last(l)==a) then l:teste1(a,xs) else teste1(a,xs)
+{---------------
+???
+----------- duvidoso ------------------------------------------------------------------------}
 
 new :: (Eq a) => Path a -> b -> FS a b -> FS a b
-new = undefined
+new = uncurriedNew
+
+uncurriedNew p b fs = untar([(p,b)]++tar(fs))
+
+{-----faltam fazer---------------------------------------------------------------------------------------------}
 
 cp :: (Eq a) => Path a -> Path a -> FS a b -> FS a b
 cp = undefined
