@@ -1126,15 +1126,65 @@ outras funções auxiliares que sejam necessárias.
 \subsection*{Problema 1}
 
 1.
+Começamos por definir o inExpr através do seu diagrama:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Int + (Op >< (Expr >< Expr))|
+           \ar[d]_-{|[f,g]|}
+\\
+     |Expr|
+}
+\end{eqnarray*}
 
+Sendo assim, f define-se simplesmente como Num:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Int|
+           \ar[d]_-{|Num|}
+\\
+     |Expr|
+}
+\end{eqnarray*}
+
+Para obter g, sabemos que vamos precisar que g primeiro transforme o input para o tipo de entrada de Bop Expr Op Expr:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Op >< (Expr >< Expr)|
+           \ar[d]_-{|assocl|}
+\\
+    |(Op >< Expr) >< Expr|
+           \ar[d]_-{|swap><id|}
+\\
+    |(Expr >< Op) >< Expr|
+}
+\end{eqnarray*}
+
+Fica assim, só a faltar ao invés de receber pares, receber um elemento de cada vez, que obtemos através da função uncurry.uncurry, logo:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Op >< (Expr >< Expr)|
+           \ar[d]_-{|((uncurry.uncurry)Bop).((swap><id).assocl)|}
+\\
+     |Expr|
+}
+\end{eqnarray*}
+
+E inExpr fica assim definido:
 \begin{code}
 inExpr :: Either Int (Op,(Expr,Expr)) -> Expr
 inExpr = either Num (((uncurry.uncurry)Bop).((swap><id).assocl))
+\end{code}
 
+Para definir outExpr como se analisa a Expr por casos, basta fazer as injeções respetivas, tendo em atenção de no caso de Bop trocar a ordem dos elementos:
+\begin{code}
 outExpr :: Expr -> Either Int (Op,(Expr,Expr))
 outExpr (Num a) = i1 a
 outExpr (Bop e1 o e2) = i2 (o,(e1,e2))
+\end{code}
 
+
+Para definir recExpr, cataExpr, anaExpr, hyloExpr, estes são imediatos tendo baseExpr definido:
+\begin{code}
 recExpr f = baseExpr id f
 
 cataExpr g = g . (recExpr (cataExpr g)) . outExpr
@@ -1142,13 +1192,11 @@ cataExpr g = g . (recExpr (cataExpr g)) . outExpr
 anaExpr g = inExpr . (recExpr (anaExpr g) ) . g
 
 hyloExpr h g = cataExpr h . anaExpr g
-uncurriedBop :: (Op,(Expr,Expr)) -> Expr
-uncurriedBop (a,(b,c)) = Bop b a c
 \end{code}
 
 2.
 
-calcula definido como catamorfismo visto que o que pretendemos é perder informação, transformar uma expressão no seu resultado:
+Começamos por definir calcula como um catamorfismo, visto que pretendemos perder informação, transformar uma expressão no seu resultado:
 \begin{eqnarray*}
 \xymatrix@@C=2cm{
     |Expr|
@@ -1174,7 +1222,10 @@ calcula = cataExpr (either id calcop)
 -- versao alternativa pointfree
 
 calcula' :: Expr -> Int
-calcula' = cataExpr (either id (cond (((Op "+")==).p1) (fromIntegral.add.(toInteger><toInteger).p2) (fromIntegral.mul.(toInteger><toInteger).p2)))
+calcula' = cataExpr (either id (cond (((Op "+")==).p1)
+                                  (fromIntegral.add.(toInteger><toInteger).p2) 
+                                  (fromIntegral.mul.(toInteger><toInteger).p2)
+                               ))
 \end{code}
 
 3.
@@ -1188,20 +1239,29 @@ compile' :: String -> Codigo
 compile' = hyloExpr conqCompile' divCompile'
 \end{code}
 
-A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a string, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressoes em que as operações se encontram na raiz e nas folhas os números, sendo que as operaçoes  vão aumentando de prioridade assim que se desce na árvore.
+A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
+
+Para definir divCompile começamos por dividir em 2 casos: se a String só tiver um elemento estamos na presença de um número; caso contrário estamos perante uma expressão e para tal temos de partir a String em 3 substrings:
+\begin{itemize}
+  \item operação menos prioritária;
+  \item lado esquerdo da operação;
+  \item lado direito da operação.
+\end{itemize}
+
+Para tal definimos auxDivComp que retorna um par contendo a posição da operação menos prioritária e qual o carater da operação, e de seguida através da função slice retiramos as substrings à esquerda e direita da operação, tirando os parêntesis.
 
 \begin{code}
 divCompile :: String -> Either Int (Op,(String , String))
 divCompile [x] = i1 (digitToInt(x))
 divCompile l = i2((Op [c]),( slice 0 p l , slice (p+1) (length(l)) l )) 
-    where (p , c) = auxCompile l 0 0
+    where (p , c) = auxDivComp l 0 0
 
-auxCompile :: String -> Int -> Int -> (Int , Char)
-auxCompile (h:t) c p
-                  | (h == '(') = auxCompile t (c+1) (p+1)
-                  | (h == ')') = auxCompile t (c-1) (p+1)
+auxDivComp :: String -> Int -> Int -> (Int , Char)
+auxDivComp (h:t) c p
+                  | (h == '(') = auxDivComp t (c+1) (p+1)
+                  | (h == ')') = auxDivComp t (c-1) (p+1)
                   | (h == '+' || h == '*' ) && c==0 = (p,h)
-                  | otherwise = auxCompile t c (p+1)
+                  | otherwise = auxDivComp t c (p+1)
 
 slice :: Int -> Int -> String -> String
 slice start end string = if(head(firstslice)=='(') then (slice (start+1) (end-1) string) else firstslice
@@ -1212,7 +1272,7 @@ slice start end string = if(head(firstslice)=='(') then (slice (start+1) (end-1)
 divCompile' :: String -> Either Int (Op,(String , String))
 divCompile' [x] = i1 (digitToInt(x))
 divCompile' l = i2( (Op [c]) , (  slice'(l,(0,p)) , slice'(l,((p+1),(length(l)))) )) 
-    where (p , c) = auxCompile l 0 0
+    where (p , c) = auxDivComp l 0 0
 
 substring :: (String,(Int,Int)) -> String
 substring = ((uncurry take).swap. (id><(uncurry subtract))).(split ((uncurry drop).swap.(id><p1)) p2)
@@ -1221,25 +1281,29 @@ slice' :: (String,(Int,Int)) -> String
 slice' = (cond (('('==).head.p1) (slice'.(id><(succ><pred)).p2) p1).(split substring id)
 \end{code}
 
-De seguida definimos o catamorfismo.....
-
+De seguida definimos o catamorfismo conqCompile que apenas tem de transformar o resultado do anamorfismo no Codigo correspondente, caso seja número ou operação:
 \begin{code}
-
 conqCompile :: Either Int (Op, (Codigo, Codigo)) -> Codigo
-conqCompile  = either asda auxConq
+conqCompile  = either auxNum auxOp
 
-asda :: Int -> Codigo
-asda a = ["PUSH "++show(a)]
+auxNum :: Int -> Codigo
+auxNum a = ["PUSH "++show(a)]
 
-auxConq (op,(c1,c2)) 
-                  | op == (Op "+") = c1 ++ c2 ++ ["ADD"]
-                  | op == (Op "*") = c1 ++ c2 ++ ["MUL"]
+auxOp (op,(c1,c2)) 
+                | op == (Op "+") = c1 ++ c2 ++ ["ADD"]
+                | op == (Op "*") = c1 ++ c2 ++ ["MUL"]
 
 -- versao alternativa pointfree conqcompile e auxiliares
 conqCompile' = either (singl.conc.(split (const "PUSH ") show)) (cond (((Op "+")==).p1) (conc.swap.((const ["ADD"])><conc)) (conc.swap.((const ["MUL"])><conc)) )
 \end{code}
 
 
+???????
+????????
+????????'
+???????????
+?????????
+'
 \begin{code}
 show'' :: Expr -> String
 show'' = cataExpr (either shownum g)
@@ -1273,38 +1337,35 @@ rempara s = if(length(s)>4) then substring(s,(1,(length(s)-1)))
 
 \end{code}
 
-
-
-
-
 \subsection*{Problema 2}
 
 \begin{code}
 inL2D :: Either a (b, (X a b,X a b)) -> X a b
-inL2D = either Unid asd
-
-asd (a,(b,c)) = Comp a b c
+inL2D = either Unid (uncurry(uncurry . Comp))
 
 outL2D :: X a b -> Either a (b, (X a b,X a b))
 outL2D (Unid a) = i1(a)
 outL2D (Comp a b c) = i2(a,(b,c))
 
-{--
-????baseL2D f g = id -|- (f >< (g >< g))
 
-???recL2D f = baseL2D id f
+baseL2D f g h = f -|- (g >< (h >< h))
+
+recL2D f = baseL2D id id f
 
 cataL2D g = g . (recL2D (cataL2D g)) . outL2D
 
 anaL2D g = inL2D . (recL2D (anaL2D g) ) . g
 
-collectLeafs = undefined
+hyloL2D h g = cataL2D h . anaL2D g
+
+collectLeafs = cataL2D (either singl (conc.p2))
+
+
+{---------------------?????----------------------}
 
 dimen :: X Caixa Tipo -> (Float, Float)
-dimen = auxas
+dimen = undefined
 
-auxas _ (a,_) t = a
---}
 calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins = undefined
 
@@ -1312,9 +1373,14 @@ calc :: Tipo -> Origem -> (Float, Float) -> Origem
 calc = undefined 
 
 caixasAndOrigin2Pict = undefined
+
+{---------------------?????----------------------}
 \end{code}
 
 \subsection*{Problema 3}
+
+Falta escrever aqui o raciocinio -  facil
+
 Solução:
 \begin{code}
 coss x 0 = 1
@@ -1337,9 +1403,9 @@ cos' x = prj . for loop init where
 
 \subsection*{Problema 4}
 Triologia ``ana-cata-hilo":
-\begin{code}
-{-- 
-        apagar depois
+
+
+apagar depois------------
          
   inFS :: [(a, Either b (FS a b))] -> FS a b
   inFS = FS . map (id >< inNode)
@@ -1351,9 +1417,10 @@ exemplo
 (inFS.outFS) (FS [("f1", File "Ola"),("d1", Dir (FS [("f2", File "Ole"),("f3", File "Ole")]))])
 
 cataFS( tof.concat.( (auxCheck.map(id)) >< map([const True,id]) ))
---} 
+------------------
 
-
+ta tudo feito aqui falta talvez explicar---------------
+\begin{code}
 outFS (FS l) = (map (id >< outNode)) l
 
 outNode (File f) = (i1 f)
@@ -1370,10 +1437,16 @@ anaFS g = inFS . (recFS (anaFS g) ) . g
 
 hyloFS g h = cataFS g . anaFS h
 \end{code}
+---------------------------------------------------------
+
+
+faltam algumas e explicar raciocinios ------------------------
 Outras funções pedidas:
 \begin{code}
+{----------feito------------------------------}
+
 check :: (Eq a) => FS a b -> Bool
-check = cataFS( parbool.(split           (repetidos.map(p1))          (tof.map((either (const True) id).p2))           )                )
+check = cataFS( parbool.(split (repetidos.map(p1)) (tof.map((either true id).p2)) ))
 
 parbool (a,b) = if (a == False || b == False) then False else True
 
@@ -1386,19 +1459,19 @@ repetidos (h:t) = if(x h t) then False else repetidos t
                   x h [] = False
                   x h (y:ys) = if(h==y) then True else x h ys
 
-{----------melhoramentos----------------------------------------------------------------------------------------}
+{----------feito----------------------------------}
 
 tar :: FS a b -> [(Path a, b)]
-tar = cataFS( juntar.map( a2 ) )
+tar = cataFS( disc.map( auxtar ) )
 
-a2 (a,(Left b)) = [([a],b)]
-a2 (a,(Right [] )) = []
-a2 (a,(Right ((x,y):xs))) = ([a]++x,y)  : a2 (a,Right xs)
+auxtar (a,(Left b)) = [([a],b)]
+auxtar (a,(Right [] )) = []
+auxtar (a,(Right ((x,y):xs))) = ([a]++x,y) : auxtar (a,Right xs)
 
-juntar [] = []
-juntar (x:xs) = x ++ juntar xs
+disc [] = []
+disc (x:xs) = x ++ disc xs
 
-{-------feito-------------------------------------------------------------------------------------------}
+{-------feito----------------------------------}
 
 untar :: (Eq a) => [(Path a, b)] -> FS a b
 untar = joinDupDirs.anaFS( map(intar) ) 
@@ -1406,27 +1479,23 @@ untar = joinDupDirs.anaFS( map(intar) )
 intar ([a],b) = (a,i1 b)
 intar ((x:xs),b) = (x,i2 [(xs,b)])
 
-{-------------------
----------- duvidoso ---------------------------------------------------------------------}
+{----------------- feito ----------------------}
 
 find :: (Eq a) => a -> FS a b -> [Path a]
-find = uncurriedFind
-
-uncurriedFind a fs = teste1(a,tar(fs))
+find = curry (teste1.(id><tar))
 
 teste1 :: (Eq a) => (a, [(Path a, b)]) -> [Path a]
 teste1 (a,[]) = []
 teste1 (a,(l,_):xs) = if(last(l)==a) then l:teste1(a,xs) else teste1(a,xs)
-{---------------
-???
------------ duvidoso ------------------------------------------------------------------------}
+
+{---------------feito ---------------------------}
 
 new :: (Eq a) => Path a -> b -> FS a b -> FS a b
 new = uncurriedNew
 
 uncurriedNew p b fs = untar([(p,b)]++tar(fs))
 
-{-----faltam fazer---------------------------------------------------------------------------------------------}
+{-----faltam fazer-------------------------------}
 
 cp :: (Eq a) => Path a -> Path a -> FS a b -> FS a b
 cp = undefined
