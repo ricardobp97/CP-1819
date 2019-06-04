@@ -1346,9 +1346,11 @@ Triologia ``ana-cata-hilo":
 
   inNode :: Either b (FS a b) -> Node a b
   inNode = either File Dir
-
+auxCheck .cataFS(  map ( [id, id].outNode.p2))
 exemplo
 (inFS.outFS) (FS [("f1", File "Ola"),("d1", Dir (FS [("f2", File "Ole"),("f3", File "Ole")]))])
+
+cataFS( tof.concat.( (auxCheck.map(id)) >< map([const True,id]) ))
 --} 
 
 
@@ -1371,10 +1373,26 @@ hyloFS g h = cataFS g . anaFS h
 Outras funções pedidas:
 \begin{code}
 check :: (Eq a) => FS a b -> Bool
-check = undefined
+check = cataFS( parbool.(split           (repetidos.map(p1))          (tof.map((either (const True) id).p2))           )                )
+
+parbool (a,b) = if (a == False || b == False) then False else True
+
+tof [] = True
+tof (x:xs) = if(x == False) then False else tof xs
+
+repetidos [] = True
+repetidos (h:t) = if(x h t) then False else repetidos t
+                where 
+                  x h [] = False
+                  x h (y:ys) = if(h==y) then True else x h ys
 
 tar :: FS a b -> [(Path a, b)]
-tar = undefined
+tar = cataFS (    map(auxjun).map(id >< (either (auxtar) (id)))               )
+
+auxjun (nome,((path,b):xs)) = ([nome]++path,b) : auxjun (nome,xs)
+
+auxtar b =  [([],b)]
+
 
 untar :: (Eq a) => [(Path a, b)] -> FS a b
 untar = undefined
