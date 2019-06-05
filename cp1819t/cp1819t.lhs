@@ -1518,10 +1518,18 @@ outFS (FS l) = (map (id >< outNode)) l
 
 outNode (File f) = (i1 f)
 outNode (Dir f) = (i2 f) 
+\end{code}
 
+Como o baseFS vai ser aplicado a cada elemento que sai do outFS, temos um map do produto da função f com a soma das funções g e h.
 
+\begin{code}
 baseFS f g h = map(f >< (g -|- h))
+\end{code}
 
+
+Após definir o baseFS, obtemos de forma imediata o cataFS, o anaFS e o hyloFS.
+
+\begin{code}
 cataFS :: ([(a, Either b c)] -> c) -> FS a b -> c
 cataFS g = g . (recFS (cataFS g)) . outFS
 
