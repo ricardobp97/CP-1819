@@ -1510,6 +1510,9 @@ cataFS( tof.concat.( (auxCheck.map(id)) >< map([const True,id]) ))
 ------------------
 
 ta tudo feito aqui falta talvez explicar---------------
+
+Para definir a função outFS recorremos a uma função auxiliar que apenas faz uma injeção à esquerda ou à direita, consoante o parâmetro for um Ficheiro(File) ou uma Diretoria(Dir), respetivamente. Definida esta função auxiliar, o outFS é um map com o produto da função identidade e da função outNode, definida por nós. 
+
 \begin{code}
 outFS (FS l) = (map (id >< outNode)) l
 
