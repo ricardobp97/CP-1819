@@ -27,5 +27,5 @@ p4
 		d) .
 		e) . e falta responder a questao extra
 		f) ?
-		g) ?
-		Valorizaçao) ?
+		g) .
+		Valorizaçao) .

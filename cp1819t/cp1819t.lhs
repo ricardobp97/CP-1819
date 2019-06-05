@@ -1492,24 +1492,7 @@ int main(int argc, char const *argv[]){
 \end{verbatim}
 
 \subsection*{Problema 4}
-Triologia ``ana-cata-hilo":
-
-
-apagar depois------------
-         
-  inFS :: [(a, Either b (FS a b))] -> FS a b
-  inFS = FS . map (id >< inNode)
-
-  inNode :: Either b (FS a b) -> Node a b
-  inNode = either File Dir
-auxCheck .cataFS(  map ( [id, id].outNode.p2))
-exemplo
-(inFS.outFS) (FS [("f1", File "Ola"),("d1", Dir (FS [("f2", File "Ole"),("f3", File "Ole")]))])
-
-cataFS( tof.concat.( (auxCheck.map(id)) >< map([const True,id]) ))
-------------------
-
-ta tudo feito aqui falta talvez explicar---------------
+1.
 
 Para definir a função outFS recorremos a uma função auxiliar que apenas faz uma injeção à esquerda ou à direita, consoante o parâmetro for um Ficheiro(File) ou uma Diretoria(Dir), respetivamente. Definida esta função auxiliar, o outFS é um map com o produto da função identidade e da função outNode, definida por nós. 
 
@@ -1538,8 +1521,17 @@ anaFS g = inFS . (recFS (anaFS g) ) . g
 
 hyloFS g h = cataFS g . anaFS h
 \end{code}
----------------------------------------------------------
 
+2.
+
+-------------------------
+
+falta diagrama do cataFS
+
+--------------------------------
+
+
+3.
 
 faltam algumas e explicar raciocinios ------------------------
 Outras funções pedidas:
@@ -1583,7 +1575,7 @@ intar ((x:xs),b) = (x,i2 [(xs,b)])
 {----------------- feito ----------------------}
 
 find :: (Eq a) => a -> FS a b -> [Path a]
-find = curry (teste1.(id><tar))
+find = curry ( teste1.(id><tar))
 
 teste1 :: (Eq a) => (a, [(Path a, b)]) -> [Path a]
 teste1 (a,[]) = []
@@ -1596,10 +1588,22 @@ new = uncurriedNew
 
 uncurriedNew p b fs = untar([(p,b)]++tar(fs))
 
-{-----faltam fazer-------------------------------}
+{-----feito-------------------------------}
 
 cp :: (Eq a) => Path a -> Path a -> FS a b -> FS a b
-cp = undefined
+cp = cpaux
+
+cpaux s d f = if(s==[] || d==[]) then f else untar([(d,conteudo)]++ltar)
+          where
+            ltar = tar(f)
+            conteudo = getconteudo s ltar
+
+getconteudo :: (Eq a) => Path a -> [(Path a, b)] -> b
+getconteudo d [(l,b)] = b
+getconteudo d ((l,b):xs) = if(l==d) then b else (getconteudo d xs)
+
+
+{-----faltam fazer-------------------------------}
 
 rm :: (Eq a) => (Path a) -> (FS a b) -> FS a b
 rm = undefined
@@ -1607,8 +1611,18 @@ rm = undefined
 auxJoin :: ([(a, Either b c)],d) -> [(a, Either b (d,c))]
 auxJoin = undefined
 
+{-----feito-------------------------------}
+
 cFS2Exp :: a -> FS a b -> (Exp () a)
-cFS2Exp = undefined
+cFS2Exp = curry ( rootTerm.(id >< map( anaExp(inTerm)).noFS) )
+
+noFS (FS l) = l
+
+inTerm :: (a,Node a b) -> Either () (a,[(a,Node a b)])
+inTerm (a,File b ) = i2 (a,[])
+inTerm (a,Dir (FS c)) = i2(a,c)
+
+rootTerm (a,b) = Term a b
 \end{code}
 
 %----------------- Fim do anexo com soluções dos alunos ------------------------%

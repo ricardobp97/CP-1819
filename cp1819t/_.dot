@@ -1,0 +1,27 @@
+digraph G {
+    /* edge [label=0]; */
+    graph [ranksep=0.5];
+    root_0 [shape=record, label="{{root}}"];
+    d1_8 [shape=record, label="{{d1}}"];
+    d1_9 [shape=record, label="{{d1}}"];
+    f1_11 [shape=record, label="{{f1}}"];
+    f2_10 [shape=record, label="{{f2}}"];
+    d2_1 [shape=record, label="{{d2}}"];
+    d1_5 [shape=record, label="{{d1}}"];
+    f1_7 [shape=record, label="{{f1}}"];
+    f2_6 [shape=record, label="{{f2}}"];
+    d2_2 [shape=record, label="{{d2}}"];
+    f1_4 [shape=record, label="{{f1}}"];
+    d1_3 [shape=record, label="{{d1}}"];
+    d1_9 -> f1_11;
+    d1_9 -> f2_10;
+    d1_8 -> d1_9;
+    d1_5 -> f1_7;
+    d1_5 -> f2_6;
+    d2_2 -> f1_4;
+    d2_2 -> d1_3;
+    d2_1 -> d1_5;
+    d2_1 -> d2_2;
+    root_0 -> d1_8;
+    root_0 -> d2_1;
+}
