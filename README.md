@@ -17,7 +17,7 @@ p2
 	visualizar ?
 
 p3
-	.
+	x
 	Valorizaçao) ?
 
 p4

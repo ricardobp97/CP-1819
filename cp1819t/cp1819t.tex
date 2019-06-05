@@ -2153,9 +2153,63 @@ De seguida definimos o catamorfismo conqCompile que apenas tem de transformar o 
 
 \subsection*{Problema 3}
 
-Falta escrever aqui o raciocinio -  facil
+Seguindo o Anexo B:
+\begin{eqnarray*}
+  cos\ x = \sum_{i=0}^\infty \frac{(-1)^i}{(2i)!} x^{2i}
+\end{eqnarray*}
 
-Solução:
+Seja:
+\begin{eqnarray*}
+  cos\ x\ n = \sum_{i=0}^{n} \frac{(-1)^i}{(2i)!} x^{2i}
+\end{eqnarray*}
+
+Então:
+\begin{eqnarray*}
+  cos\ x\ 0 = 1
+\end{eqnarray*}
+\begin{eqnarray*}
+  cos\ x\ (n+1) = cos\ x\ n + \frac{(-1)^{(n+1)}}{(2(n+1))!} * x^{2(n+1)}
+\end{eqnarray*}
+
+Se $\ensuremath{\Varid{h}\;\Varid{x}\;\Varid{n}} = \frac{(-1)^{(n+1)}}{(2(n+1))!} * x^{2(n+1)}$, obtemos então:
+\begin{eqnarray*}
+  h\ x\ 0 = - \frac{x^2} {2}
+\end{eqnarray*}
+\begin{eqnarray*}
+  h\ x\ (n+1) = \frac{(-1)^{(n+1+1)}}{(2(n+1+1))!} * x^{2(n+1+1)}
+\end{eqnarray*}
+
+Desenvolvendo $\ensuremath{\Varid{h}\;\Varid{x}\;(\Varid{n}\mathbin{+}\mathrm{1})}$:
+\begin{eqnarray*}
+  h\ x\ (n+1) = \frac{(-1)^{(n+1)} * (-1)}{(2(n+1))! * (2n+3) * (2n+4)} * x^{2(n+1)} * x^2
+\end{eqnarray*}
+\begin{eqnarray*}
+  h\ x\ (n+1) = h\ x\ n + \frac{(-x)^2}{(2n+3) * (2n+4)}
+\end{eqnarray*}
+
+Definindo as funções auxiliares a e b, que correspondem a $\ensuremath{\mathrm{2}\;\Varid{n}\mathbin{+}\mathrm{3}}$ e $\ensuremath{\mathrm{2}\;\Varid{n}\mathbin{+}\mathrm{4}}$ respetivamente, obtemos no final:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
+\>[B]{}\Varid{cos}\;\Varid{x}\;\mathrm{0}\mathrel{=}\mathrm{1}{}\<[E]%
+\\
+\>[B]{}\Varid{cos}\;\Varid{x}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}\Varid{cos}\;\Varid{x}\;\Varid{n}\mathbin{+}\Varid{h}\;\Varid{x}\;\Varid{n}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{h}\;\Varid{x}\;\mathrm{0}\mathrel{=}((\mathbin{-}\Varid{x})\mathbin{\uparrow}\mathrm{2})\mathbin{/}\mathrm{2}{}\<[E]%
+\\
+\>[B]{}\Varid{h}\;\Varid{x}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}\Varid{h}\;\Varid{x}\;\Varid{n}\mathbin{*}((\mathbin{-}\Varid{x})\mathbin{\uparrow}\mathrm{2})\mathbin{/}((\Varid{a}\;\Varid{n})\mathbin{*}(\Varid{b}\;\Varid{n})){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{a}\;\mathrm{0}\mathrel{=}\mathrm{3}{}\<[E]%
+\\
+\>[B]{}\Varid{a}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}\mathrm{2}\mathbin{+}\Varid{a}\;\Varid{n}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{b}\;\mathrm{0}\mathrel{=}\mathrm{4}{}\<[E]%
+\\
+\>[B]{}\Varid{b}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}\mathrm{2}\mathbin{+}\Varid{b}\;\Varid{n}{}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+E obtemos assim a solução:
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{4}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -2168,11 +2222,11 @@ Solução:
 \\
 \>[B]{}\Varid{h}\;\Varid{x}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}(\Varid{h}\;\Varid{x}\;\Varid{n})\mathbin{*}(\mathbin{-}(\Varid{x}\mathbin{\uparrow}\mathrm{2}))\mathbin{/}((\Varid{a}\;\Varid{n})\mathbin{*}(\Varid{b}\;\Varid{n})){}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{a}\;\mathrm{0}\mathrel{=}\mathrm{4}{}\<[E]%
+\>[B]{}\Varid{a}\;\mathrm{0}\mathrel{=}\mathrm{3}{}\<[E]%
 \\
 \>[B]{}\Varid{a}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}\mathrm{2}\mathbin{+}\Varid{a}\;\Varid{n}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{b}\;\mathrm{0}\mathrel{=}\mathrm{3}{}\<[E]%
+\>[B]{}\Varid{b}\;\mathrm{0}\mathrel{=}\mathrm{4}{}\<[E]%
 \\
 \>[B]{}\Varid{b}\;(\Varid{n}\mathbin{+}\mathrm{1})\mathrel{=}\mathrm{2}\mathbin{+}\Varid{b}\;\Varid{n}{}\<[E]%
 \\[\blanklineskip]%
@@ -2182,7 +2236,7 @@ Solução:
 \>[4]{}\Varid{loop}\;(\Varid{coss},\Varid{h},\Varid{a},\Varid{b})\mathrel{=}(\Varid{coss}\mathbin{+}\Varid{h},\Varid{h}\mathbin{*}(\mathbin{-}(\Varid{x}\mathbin{\uparrow}\mathrm{2}))\mathbin{/}(\Varid{a}\mathbin{*}\Varid{b}),\mathrm{2}\mathbin{+}\Varid{a},\mathrm{2}\mathbin{+}\Varid{b}){}\<[E]%
 \\
 \>[B]{}\hsindent{4}{}\<[4]%
-\>[4]{}\Varid{init}\mathrel{=}(\mathrm{1},\mathbin{-}(\Varid{x}\mathbin{\uparrow}\mathrm{2})\mathbin{/}\mathrm{2},\mathrm{4},\mathrm{3}){}\<[E]%
+\>[4]{}\Varid{init}\mathrel{=}(\mathrm{1},\mathbin{-}(\Varid{x}\mathbin{\uparrow}\mathrm{2})\mathbin{/}\mathrm{2},\mathrm{3},\mathrm{4}){}\<[E]%
 \\
 \>[B]{}\hsindent{4}{}\<[4]%
 \>[4]{}\Varid{prj}\;(\Varid{coss},\Varid{h},\Varid{a},\Varid{b})\mathrel{=}\Varid{coss}{}\<[E]%

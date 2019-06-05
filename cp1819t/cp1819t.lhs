@@ -1379,9 +1379,56 @@ caixasAndOrigin2Pict = undefined
 
 \subsection*{Problema 3}
 
-Falta escrever aqui o raciocinio -  facil
+Seguindo o Anexo B:
+\begin{eqnarray*}
+  cos\ x = \sum_{i=0}^\infty \frac{(-1)^i}{(2i)!} x^{2i}
+\end{eqnarray*}
 
-Solução:
+Seja:
+\begin{eqnarray*}
+  cos\ x\ n = \sum_{i=0}^{n} \frac{(-1)^i}{(2i)!} x^{2i}
+\end{eqnarray*}
+
+Então:
+\begin{eqnarray*}
+  cos\ x\ 0 = 1
+\end{eqnarray*}
+\begin{eqnarray*}
+  cos\ x\ (n+1) = cos\ x\ n + \frac{(-1)^{(n+1)}}{(2(n+1))!} * x^{2(n+1)}
+\end{eqnarray*}
+
+Se $|h x n| = \frac{(-1)^{(n+1)}}{(2(n+1))!} * x^{2(n+1)}$, obtemos então:
+\begin{eqnarray*}
+  h\ x\ 0 = - \frac{x^2} {2}
+\end{eqnarray*}
+\begin{eqnarray*}
+  h\ x\ (n+1) = \frac{(-1)^{(n+1+1)}}{(2(n+1+1))!} * x^{2(n+1+1)}
+\end{eqnarray*}
+
+Desenvolvendo $|h x (n+1)|$:
+\begin{eqnarray*}
+  h\ x\ (n+1) = \frac{(-1)^{(n+1)} * (-1)}{(2(n+1))! * (2n+3) * (2n+4)} * x^{2(n+1)} * x^2
+\end{eqnarray*}
+\begin{eqnarray*}
+  h\ x\ (n+1) = h\ x\ n + \frac{(-x)^2}{(2n+3) * (2n+4)}
+\end{eqnarray*}
+
+Definindo as funções auxiliares a e b, que correspondem a $|2n + 3|$ e $|2n + 4|$ respetivamente, obtemos no final:
+\begin{spec}
+cos x 0 = 1
+cos x (n+1) = cos x n + h x n
+
+h x 0 = ((-x)^2)/2
+h x (n+1) = h x n * ((-x)^2)/((a n) * (b n)) 
+
+a 0 = 3
+a (n+1) = 2 + a n
+
+b 0 = 4
+b (n+1) = 2 + b n
+\end{spec}
+
+E obtemos assim a solução:
 \begin{code}
 coss x 0 = 1
 coss x (n+1) = (coss x n) + (h x n)
@@ -1389,15 +1436,15 @@ coss x (n+1) = (coss x n) + (h x n)
 h x 0 = -(x^2)/2
 h x (n+1) = ( h x n )* (-(x^2))/((a n) * (b n))
 
-a 0 = 4
+a 0 = 3
 a (n+1) = 2 + a n 
 
-b 0 = 3
+b 0 = 4
 b (n+1) = 2 + b n 
 
 cos' x = prj . for loop init where
    loop(coss,h,a,b) = (coss+h,h*(-(x^2))/(a*b),2+a,2+b)
-   init = (1,-(x^2)/2,4,3) 
+   init = (1,-(x^2)/2,3,4) 
    prj(coss,h,a,b) = coss 
 \end{code}
 
