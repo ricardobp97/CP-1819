@@ -117,9 +117,9 @@
 \\\hline
 a77045 & Ricardo Barros Pereira
 \\
-a22222 & Nome2 (preencher)	
+a78912 & Miguel Pereira	
 \\
-a33333 & Nome3 (preencher)	
+a78997 & Bruno Sousa	
 \end{tabular}
 \end{center}
 

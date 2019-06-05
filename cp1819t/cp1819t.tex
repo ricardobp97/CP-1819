@@ -304,9 +304,9 @@
 \\\hline
 a77045 & Ricardo Barros Pereira
 \\
-a22222 & Nome2 (preencher)	
+a78912 & Miguel Pereira	
 \\
-a33333 & Nome3 (preencher)	
+a78997 & Bruno Sousa	
 \end{tabular}
 \end{center}
 
@@ -1936,32 +1936,10 @@ Começamos por definir calcula como um catamorfismo, visto que pretendemos perde
 \>[B]{}\Varid{compile}\mathbin{::}\Conid{String}\to \Conid{Codigo}{}\<[E]%
 \\
 \>[B]{}\Varid{compile}\mathrel{=}\Varid{hyloExpr}\;\Varid{conqCompile}\;\Varid{divCompile}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\onelinecomment versao alternativa pointfree}{}\<[E]%
-\\
-\>[B]{}\Varid{compile'}\mathbin{::}\Conid{String}\to \Conid{Codigo}{}\<[E]%
-\\
-\>[B]{}\Varid{compile'}\mathrel{=}\Varid{hyloExpr}\;\Varid{conqCompile'}\;\Varid{divCompile'}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
-A função compile define-se como um hilomorfismo:
-
-------------------
---
----
---
-
--
-por aqui diagrama do hilo 
-
--
---
--
----
-----------------
-
-pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
+A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
 
 Para definir divCompile começamos por dividir em 2 casos: se a String só tiver um elemento estamos na presença de um número; caso contrário estamos perante uma expressão e para tal temos de partir a String em 3 substrings:
 \begin{itemize}
@@ -1976,7 +1954,6 @@ Para tal definimos auxDivComp que retorna um par contendo a posição da operaç
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{5}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{19}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{35}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{divCompile}\mathbin{::}\Conid{String}\to \Conid{Int}+(\Conid{Op},(\Conid{String},\Conid{String})){}\<[E]%
 \\
@@ -2009,26 +1986,6 @@ Para tal definimos auxDivComp que retorna um par contendo a posição da operaç
 \\
 \>[B]{}\hsindent{5}{}\<[5]%
 \>[5]{}\mathbf{where}\;\Varid{firstslice}\mathrel{=}\Varid{take}\;(\Varid{end}\mathbin{-}\Varid{start})\;(\Varid{drop}\;\Varid{start}\;\Varid{string}){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\onelinecomment  versao alternativa pointfree divcompile e slice}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{divCompile'}\mathbin{::}\Conid{String}\to \Conid{Int}+(\Conid{Op},(\Conid{String},\Conid{String})){}\<[E]%
-\\
-\>[B]{}\Varid{divCompile'}\;[\mskip1.5mu \Varid{x}\mskip1.5mu]\mathrel{=}i_1\;(\Varid{digitToInt}\;(\Varid{x})){}\<[E]%
-\\
-\>[B]{}\Varid{divCompile'}\;\Varid{l}\mathrel{=}i_2\;((\Conid{Op}\;[\mskip1.5mu \Varid{c}\mskip1.5mu]),({}\<[35]%
-\>[35]{}\Varid{slice'}\;(\Varid{l},(\mathrm{0},\Varid{p})),\Varid{slice'}\;(\Varid{l},((\Varid{p}\mathbin{+}\mathrm{1}),(\length \;(\Varid{l})))))){}\<[E]%
-\\
-\>[B]{}\hsindent{5}{}\<[5]%
-\>[5]{}\mathbf{where}\;(\Varid{p},\Varid{c})\mathrel{=}\Varid{auxDivComp}\;\Varid{l}\;\mathrm{0}\;\mathrm{0}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{substring}\mathbin{::}(\Conid{String},(\Conid{Int},\Conid{Int}))\to \Conid{String}{}\<[E]%
-\\
-\>[B]{}\Varid{substring}\mathrel{=}(\uncurry{\Varid{take}}\comp \Varid{swap}\comp (\Varid{id}\times\uncurry{\Varid{subtract}}))\comp \conj{\uncurry{\Varid{drop}}\comp \Varid{swap}\comp (\Varid{id}\times\p1)}{\p2}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{slice'}\mathbin{::}(\Conid{String},(\Conid{Int},\Conid{Int}))\to \Conid{String}{}\<[E]%
-\\
-\>[B]{}\Varid{slice'}\mathrel{=}(\Varid{cond}\;((\text{\tt '('}\equiv )\comp \Varid{head}\comp \p1)\;(\Varid{slice'}\comp (\Varid{id}\times(\succ \times\Varid{pred}))\comp \p2)\;\p1)\comp \conj{\Varid{substring}}{\Varid{id}}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
@@ -2054,10 +2011,6 @@ De seguida definimos o catamorfismo conqCompile que apenas tem de transformar o 
 \\
 \>[B]{}\hsindent{17}{}\<[17]%
 \>[17]{}\mid \Varid{op}\equiv (\Conid{Op}\;\text{\tt \char34 *\char34})\mathrel{=}\Varid{c1}\plus \Varid{c2}\plus [\mskip1.5mu \text{\tt \char34 MUL\char34}\mskip1.5mu]{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\onelinecomment  versao alternativa pointfree conqcompile e auxiliares}{}\<[E]%
-\\
-\>[B]{}\Varid{conqCompile'}\mathrel{=}\alt{\Varid{singl}\comp \mathsf{conc}\comp \conj{\underline{\text{\tt \char34 PUSH~\char34}}}{\Varid{show}}}{\Varid{cond}\;(((\Conid{Op}\;\text{\tt \char34 +\char34})\equiv )\comp \p1)\;(\mathsf{conc}\comp \Varid{swap}\comp (\underline{[\mskip1.5mu \text{\tt \char34 ADD\char34}\mskip1.5mu]}\times\mathsf{conc}))\;(\mathsf{conc}\comp \Varid{swap}\comp (\underline{[\mskip1.5mu \text{\tt \char34 MUL\char34}\mskip1.5mu]}\times\mathsf{conc}))}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
@@ -2108,6 +2061,8 @@ Em showOp temos de verificar de que tipo de operação se trata e apenas colocar
 
 \subsection*{Problema 2}
 
+Primeiro definimos os in e out e a partir destes a base, que de forma imediata nos deu o catamorfismo, anamorfismo e hilomorfismo:
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -2132,9 +2087,12 @@ Em showOp temos de verificar de que tipo de operação se trata e apenas colocar
 \>[B]{}\Varid{hyloL2D}\;\Varid{h}\;\Varid{g}\mathrel{=}\Varid{cataL2D}\;\Varid{h}\comp \Varid{anaL2D}\;\Varid{g}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{collectLeafs}\mathrel{=}\Varid{cataL2D}\;\alt{\Varid{singl}}{\mathsf{conc}\comp \p2}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin --------------------?????--------------------- \commentend}{}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{dimen}\mathbin{::}\Conid{X}\;\Conid{Caixa}\;\Conid{Tipo}\to (\Conid{Float},\Conid{Float}){}\<[E]%
 \\
 \>[B]{}\Varid{dimen}\mathrel{=}\bot {}\<[E]%
@@ -2148,8 +2106,6 @@ Em showOp temos de verificar de que tipo de operação se trata e apenas colocar
 \>[B]{}\Varid{calc}\mathrel{=}\bot {}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{caixasAndOrigin2Pict}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin --------------------?????--------------------- \commentend}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
@@ -2473,34 +2429,48 @@ Diagrama do anamorfismo presente em untar:
            \ar[l]^-{\ensuremath{\Varid{outFS}}}
 }
 \end{eqnarray*}
+
 d)
+Para definir o find, fizemos uso da função tar para dar todos os paths existentes no sistema de ficheiros, que depois percorremos à procura do ficheiro prentendido através da função auxfind. 
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mbox{\commentbegin ---------------- feito --------------------- \commentend}{}\<[E]%
-\\[\blanklineskip]%
 \>[B]{}\Varid{find}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow \Varid{a}\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to [\mskip1.5mu \Conid{Path}\;\Varid{a}\mskip1.5mu]{}\<[E]%
 \\
-\>[B]{}\Varid{find}\mathrel{=}\Varid{curry}\;(\Varid{teste1}\comp (\Varid{id}\times\Varid{tar})){}\<[E]%
+\>[B]{}\Varid{find}\mathrel{=}\Varid{curry}\;(\Varid{auxfind}\comp (\Varid{id}\times\Varid{tar})){}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{teste1}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow (\Varid{a},[\mskip1.5mu (\Conid{Path}\;\Varid{a},\Varid{b})\mskip1.5mu])\to [\mskip1.5mu \Conid{Path}\;\Varid{a}\mskip1.5mu]{}\<[E]%
+\>[B]{}\Varid{auxfind}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow (\Varid{a},[\mskip1.5mu (\Conid{Path}\;\Varid{a},\Varid{b})\mskip1.5mu])\to [\mskip1.5mu \Conid{Path}\;\Varid{a}\mskip1.5mu]{}\<[E]%
 \\
-\>[B]{}\Varid{teste1}\;(\Varid{a},[\mskip1.5mu \mskip1.5mu])\mathrel{=}[\mskip1.5mu \mskip1.5mu]{}\<[E]%
+\>[B]{}\Varid{auxfind}\;(\Varid{a},[\mskip1.5mu \mskip1.5mu])\mathrel{=}[\mskip1.5mu \mskip1.5mu]{}\<[E]%
 \\
-\>[B]{}\Varid{teste1}\;(\Varid{a},(\Varid{l},\anonymous )\mathbin{:}\Varid{xs})\mathrel{=}\mathbf{if}\;(\Varid{last}\;(\Varid{l})\equiv \Varid{a})\;\mathbf{then}\;\Varid{l}\mathbin{:}\Varid{teste1}\;(\Varid{a},\Varid{xs})\;\mathbf{else}\;\Varid{teste1}\;(\Varid{a},\Varid{xs}){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin --------------feito -------------------------- \commentend}{}\<[E]%
-\\[\blanklineskip]%
+\>[B]{}\Varid{auxfind}\;(\Varid{a},(\Varid{l},\anonymous )\mathbin{:}\Varid{xs})\mathrel{=}\mathbf{if}\;(\Varid{last}\;(\Varid{l})\equiv \Varid{a})\;\mathbf{then}\;\Varid{l}\mathbin{:}\Varid{auxfind}\;(\Varid{a},\Varid{xs})\;\mathbf{else}\;\Varid{auxfind}\;(\Varid{a},\Varid{xs}){}\<[E]%
+\ColumnHook
+\end{hscode}\resethooks
+
+
+e)
+
+Para acrescentar um novo ficheiro utilizamos a função tar para transformar o sistema de ficheiros na sua lista de paths e conteúdos respetivos e adicionamos o ficheiro novo a essa lista e fazemos o untar para voltarmos ao sistema de ficheiros:
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{new}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow \Conid{Path}\;\Varid{a}\to \Varid{b}\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to \Conid{FS}\;\Varid{a}\;\Varid{b}{}\<[E]%
 \\
 \>[B]{}\Varid{new}\mathrel{=}\Varid{uncurriedNew}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{uncurriedNew}\;\Varid{p}\;\Varid{b}\;\Varid{fs}\mathrel{=}\Varid{untar}\;([\mskip1.5mu (\Varid{p},\Varid{b})\mskip1.5mu]\plus \Varid{tar}\;(\Varid{fs})){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin ----feito------------------------------ \commentend}{}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+f)
+
+Para definir a função de cópia, utilizamos mais uma vez tar para através da função getconteudo obtermos o conteudo associado ao path de origem. De seguida acrescentamos o par (path destino,conteudo) ao tar do sistema de ficheiros e fazemos o untar, tendo assim criado um novo ficheiro com o conteúdo do ficheiro original.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{cp}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow \Conid{Path}\;\Varid{a}\to \Conid{Path}\;\Varid{a}\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to \Conid{FS}\;\Varid{a}\;\Varid{b}{}\<[E]%
 \\
 \>[B]{}\Varid{cp}\mathrel{=}\Varid{cpaux}{}\<[E]%
@@ -2521,9 +2491,13 @@ d)
 \>[B]{}\Varid{getconteudo}\;\Varid{d}\;[\mskip1.5mu (\Varid{l},\Varid{b})\mskip1.5mu]\mathrel{=}\Varid{b}{}\<[E]%
 \\
 \>[B]{}\Varid{getconteudo}\;\Varid{d}\;((\Varid{l},\Varid{b})\mathbin{:}\Varid{xs})\mathrel{=}\mathbf{if}\;(\Varid{l}\equiv \Varid{d})\;\mathbf{then}\;\Varid{b}\;\mathbf{else}\;(\Varid{getconteudo}\;\Varid{d}\;\Varid{xs}){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin ----faltam fazer------------------------------ \commentend}{}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+g)
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{rm}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow (\Conid{Path}\;\Varid{a})\to (\Conid{FS}\;\Varid{a}\;\Varid{b})\to \Conid{FS}\;\Varid{a}\;\Varid{b}{}\<[E]%
 \\
 \>[B]{}\Varid{rm}\mathrel{=}\bot {}\<[E]%
@@ -2531,9 +2505,16 @@ d)
 \>[B]{}\Varid{auxJoin}\mathbin{::}([\mskip1.5mu (\Varid{a},\Varid{b}+\Varid{c})\mskip1.5mu],\Varid{d})\to [\mskip1.5mu (\Varid{a},\Varid{b}+(\Varid{d},\Varid{c}))\mskip1.5mu]{}\<[E]%
 \\
 \>[B]{}\Varid{auxJoin}\mathrel{=}\bot {}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin ----feito------------------------------ \commentend}{}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Valorização:
+
+Definimos um anamorfismo sobre Exp que a cada elemento presente no sistema de ficheiros, $\ensuremath{(\Varid{a},\Conid{Node}\;\Varid{a}\;\Varid{b})}$ através da função inTerm obtemos pares nome e sistema de ficheiros inferior, que será vazio caso seja um ficheiro.
+No final através da função rootTerm acrescentámos a root do sistema.
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{cFS2Exp}\mathbin{::}\Varid{a}\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to (\Conid{Exp}\;()\;\Varid{a}){}\<[E]%
 \\
 \>[B]{}\Varid{cFS2Exp}\mathrel{=}\Varid{curry}\;(\Varid{rootTerm}\comp (\Varid{id}\times\map \;(\Varid{anaExp}\;(\Varid{inTerm}))\comp \Varid{noFS})){}\<[E]%
