@@ -1945,7 +1945,23 @@ Começamos por definir calcula como um catamorfismo, visto que pretendemos perde
 \ColumnHook
 \end{hscode}\resethooks
 
-A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
+A função compile define-se como um hilomorfismo:
+
+------------------
+--
+---
+--
+
+-
+por aqui diagrama do hilo 
+
+-
+--
+-
+---
+----------------
+
+pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
 
 Para definir divCompile começamos por dividir em 2 casos: se a String só tiver um elemento estamos na presença de um número; caso contrário estamos perante uma expressão e para tal temos de partir a String em 3 substrings:
 \begin{itemize}
@@ -2045,62 +2061,45 @@ De seguida definimos o catamorfismo conqCompile que apenas tem de transformar o 
 \ColumnHook
 \end{hscode}\resethooks
 
+Para definir o show' começamos por desenhar o seu diagrama como um catamorfismo:
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{\Conid{Expr}}
+           \ar[d]_-{\ensuremath{\Varid{show'}}}
+&
+    \ensuremath{\Conid{Int}\mathbin{+}(\Conid{Op}\times(\Conid{Expr}\times\Conid{Expr}))}
+           \ar[d]^{\ensuremath{\Varid{id}\mathbin{+}(\Varid{id}\times(\Varid{show'}\times\Varid{show'}))}}
+           \ar[l]_-{\ensuremath{\Varid{inExpr}}}
+\\
+     \ensuremath{\Conid{String}}
+&
+     \ensuremath{\Conid{Int}\mathbin{+}(\Conid{Op}\times(\Conid{String}\times\Conid{String}))}
+           \ar[l]^-{\ensuremath{[\mskip1.5mu \Varid{shownum},\Varid{showop}\mskip1.5mu]}}
+}
+\end{eqnarray*}
 
-???????
-????????
-????????'
-???????????
-?????????
-'
+e temos assim de definir showNum e showOp.
+Para showNum apenas temos de fazer o show desse mesmo número, e caso seja negativo, colocar parênteses à volta do mesmo.
+Em showOp temos de verificar de que tipo de operação se trata e apenas colocar as expressões já calculadas pela ordem correta.
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{9}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{29}{@{}>{\hspre}l<{\hspost}@{}}%
-\column{37}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\Varid{show''}\mathbin{::}\Conid{Expr}\to \Conid{String}{}\<[E]%
-\\
-\>[B]{}\Varid{show''}\mathrel{=}\Varid{cataExpr}\;\alt{\Varid{shownum}}{\Varid{g}}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{shownum}\;\Varid{a}\mathrel{=}\mathbf{if}\;(\Varid{a}\mathbin{<}\mathrm{0})\;\mathbf{then}\;[\mskip1.5mu \text{\tt '('}\mskip1.5mu]\plus (\Varid{show}\;\Varid{a})\plus [\mskip1.5mu \text{\tt ')'}\mskip1.5mu]\;\mathbf{else}\;(\Varid{show}\;\Varid{a}){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{auxShow}\;\Varid{s}\mathrel{=}\Varid{substring}\;(\Varid{s},(\mathrm{1},(\length \;(\Varid{s})\mathbin{-}\mathrm{1}))){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{g}\mathbin{::}(\Conid{Op},(\Conid{String},\Conid{String}))\to \Conid{String}{}\<[E]%
-\\
-\>[B]{}\Varid{g}\;(\Varid{op},(\Varid{s1},\Varid{s2})){}\<[E]%
-\\
-\>[B]{}\hsindent{9}{}\<[9]%
-\>[9]{}\mid \Varid{op}\equiv (\Conid{Op}\;\text{\tt \char34 +\char34})\mathrel{=}[\mskip1.5mu \text{\tt '('}\mskip1.5mu]\plus \Varid{s1}\plus [\mskip1.5mu \text{\tt '+'}\mskip1.5mu]\plus \Varid{s2}\plus [\mskip1.5mu \text{\tt ')'}\mskip1.5mu]{}\<[E]%
-\\
-\>[B]{}\hsindent{9}{}\<[9]%
-\>[9]{}\mid \Varid{op}\equiv (\Conid{Op}\;\text{\tt \char34 *\char34})\mathrel{=}[\mskip1.5mu \text{\tt '('}\mskip1.5mu]\plus \Varid{s1}\plus [\mskip1.5mu \text{\tt '*'}\mskip1.5mu]\plus \Varid{s2}\plus [\mskip1.5mu \text{\tt ')'}\mskip1.5mu]{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\onelinecomment versão alternativa nenhuma versao funciona?????????}{}\<[E]%
-\\
 \>[B]{}\Varid{show'}\mathbin{::}\Conid{Expr}\to \Conid{String}{}\<[E]%
 \\
-\>[B]{}\Varid{show'}\mathrel{=}\Varid{rempara}\comp \Varid{cataExpr}\;\alt{\Varid{g1}}{\Varid{g2}}{}\<[E]%
+\>[B]{}\Varid{show'}\mathrel{=}\Varid{cataExpr}\;\alt{\Varid{showNum}}{\Varid{showOp}}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{g1}\mathbin{::}\Conid{Int}\to \Conid{String}{}\<[E]%
-\\
-\>[B]{}\Varid{g1}\mathrel{=}\Varid{cond}\;(\mathrm{0}\leq )\;(\Varid{show})\;(\Varid{paravolta}\comp \Varid{show}){}\<[E]%
+\>[B]{}\Varid{showNum}\;\Varid{a}\mathrel{=}\mathbf{if}\;(\Varid{a}\mathbin{<}\mathrm{0})\;\mathbf{then}\;[\mskip1.5mu \text{\tt '('}\mskip1.5mu]\plus (\Varid{show}\;\Varid{a})\plus [\mskip1.5mu \text{\tt ')'}\mskip1.5mu]\;\mathbf{else}\;(\Varid{show}\;\Varid{a}){}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{g2}\mathbin{::}(\Conid{Op},(\Conid{String},\Conid{String}))\to \Conid{String}{}\<[E]%
+\>[B]{}\Varid{showOp}\mathbin{::}(\Conid{Op},(\Conid{String},\Conid{String}))\to \Conid{String}{}\<[E]%
 \\
-\>[B]{}\Varid{g2}\;(\Varid{op},(\Varid{s1},\Varid{s2}))\mathrel{=}\mathbf{if}\;(\Varid{op}\equiv (\Conid{Op}\;\text{\tt \char34 +\char34}))\;\mathbf{then}\;\Varid{paravolta}\;(\Varid{s1}\plus [\mskip1.5mu \text{\tt '+'}\mskip1.5mu]\plus \Varid{s2}){}\<[E]%
+\>[B]{}\Varid{showOp}\;(\Varid{op},(\Varid{s1},\Varid{s2})){}\<[E]%
 \\
-\>[B]{}\hsindent{37}{}\<[37]%
-\>[37]{}\mathbf{else}\;\Varid{paravolta}\;(\Varid{s1}\plus [\mskip1.5mu \text{\tt '*'}\mskip1.5mu]\plus \Varid{s2}){}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{paravolta}\mathbin{::}\Conid{String}\to \Conid{String}{}\<[E]%
+\>[B]{}\hsindent{13}{}\<[13]%
+\>[13]{}\mid \Varid{op}\equiv (\Conid{Op}\;\text{\tt \char34 +\char34})\mathrel{=}[\mskip1.5mu \text{\tt '('}\mskip1.5mu]\plus \Varid{s1}\plus [\mskip1.5mu \text{\tt '+'}\mskip1.5mu]\plus \Varid{s2}\plus [\mskip1.5mu \text{\tt ')'}\mskip1.5mu]{}\<[E]%
 \\
-\>[B]{}\Varid{paravolta}\;\Varid{s}\mathrel{=}[\mskip1.5mu \text{\tt '('}\mskip1.5mu]\plus \Varid{s}\plus [\mskip1.5mu \text{\tt ')'}\mskip1.5mu]{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\Varid{rempara}\;\Varid{s}\mathrel{=}\mathbf{if}\;(\length \;(\Varid{s})\mathbin{>}\mathrm{4})\;\mathbf{then}\;\Varid{substring}\;(\Varid{s},(\mathrm{1},(\length \;(\Varid{s})\mathbin{-}\mathrm{1}))){}\<[E]%
-\\
-\>[B]{}\hsindent{29}{}\<[29]%
-\>[29]{}\mathbf{else}\;\Varid{s}{}\<[E]%
+\>[B]{}\hsindent{13}{}\<[13]%
+\>[13]{}\mid \Varid{otherwise}\mathrel{=}[\mskip1.5mu \text{\tt '('}\mskip1.5mu]\plus \Varid{s1}\plus [\mskip1.5mu \text{\tt '*'}\mskip1.5mu]\plus \Varid{s2}\plus [\mskip1.5mu \text{\tt ')'}\mskip1.5mu]{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 

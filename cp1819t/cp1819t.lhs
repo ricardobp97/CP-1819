@@ -1239,7 +1239,23 @@ compile' :: String -> Codigo
 compile' = hyloExpr conqCompile' divCompile'
 \end{code}
 
-A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
+A função compile define-se como um hilomorfismo:
+
+------------------
+--
+---
+--
+
+-
+por aqui diagrama do hilo 
+
+-
+--
+-
+---
+----------------
+
+pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
 
 Para definir divCompile começamos por dividir em 2 casos: se a String só tiver um elemento estamos na presença de um número; caso contrário estamos perante uma expressão e para tal temos de partir a String em 3 substrings:
 \begin{itemize}
@@ -1297,44 +1313,39 @@ auxOp (op,(c1,c2))
 conqCompile' = either (singl.conc.(split (const "PUSH ") show)) (cond (((Op "+")==).p1) (conc.swap.((const ["ADD"])><conc)) (conc.swap.((const ["MUL"])><conc)) )
 \end{code}
 
+Para definir o show' começamos por desenhar o seu diagrama como um catamorfismo:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |Expr|
+           \ar[d]_-{|show'|}
+&
+    |Int + (Op >< (Expr >< Expr))|
+           \ar[d]^{|id + (id >< (show' >< show'))|}
+           \ar[l]_-{|inExpr|}
+\\
+     |String|
+&
+     |Int + (Op >< (String >< String))|
+           \ar[l]^-{|[shownum,showop]|}
+}
+\end{eqnarray*}
 
-???????
-????????
-????????'
-???????????
-?????????
-'
+e temos assim de definir showNum e showOp.
+
+Para showNum apenas temos de fazer o show desse mesmo número, e caso seja negativo, colocar parênteses à volta do mesmo.
+
+Em showOp temos de verificar de que tipo de operação se trata e apenas colocar as expressões já calculadas pela ordem correta.
+
 \begin{code}
-show'' :: Expr -> String
-show'' = cataExpr (either shownum g)
-
-shownum a = if(a<0) then ['(']++(show a)++[')'] else (show a)
-
-auxShow s = substring(s,(1,(length(s)-1))) 
-
-
-g :: (Op,(String,String)) -> String
-g (op,(s1,s2))
-        | op == (Op "+") = ['('] ++ s1 ++ ['+'] ++ s2 ++ [')']
-        | op == (Op "*") = ['('] ++ s1 ++ ['*'] ++ s2 ++ [')']
-
---versão alternativa nenhuma versao funciona?????????
 show' :: Expr -> String
-show' = rempara . cataExpr (either g1 g2)
+show' = cataExpr (either showNum showOp)
 
-g1 :: Int -> String
-g1 = cond (0<=) (show) (paravolta.show) 
+showNum a = if(a<0) then ['(']++(show a)++[')'] else (show a)
 
-g2 :: (Op,(String,String)) -> String
-g2 (op,(s1,s2)) = if (op==(Op "+")) then paravolta(s1++['+']++s2) 
-                                    else paravolta(s1++['*']++s2)
-
-paravolta :: String -> String
-paravolta s = ['('] ++ s ++ [')']
-
-rempara s = if(length(s)>4) then substring(s,(1,(length(s)-1)))
-                            else s
-
+showOp :: (Op,(String,String)) -> String
+showOp (op,(s1,s2))
+            | op == (Op "+") = ['('] ++ s1 ++ ['+'] ++ s2 ++ [')']
+            | otherwise = ['('] ++ s1 ++ ['*'] ++ s2 ++ [')']
 \end{code}
 
 \subsection*{Problema 2}

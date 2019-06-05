@@ -8,7 +8,7 @@ p1
 	1 x
 	2 x
 	3.1 x
-	3.2 ?
+	3.2 falta diagramas
 	Valorizaçao) ?
 	
 p2
