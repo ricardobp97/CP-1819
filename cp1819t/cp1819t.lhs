@@ -1233,29 +1233,9 @@ calcula' = cataExpr (either id (cond (((Op "+")==).p1)
 \begin{code}
 compile :: String -> Codigo
 compile = hyloExpr conqCompile divCompile
-
---versao alternativa pointfree
-compile' :: String -> Codigo
-compile' = hyloExpr conqCompile' divCompile'
 \end{code}
 
-A função compile define-se como um hilomorfismo:
-
-------------------
---
----
---
-
--
-por aqui diagrama do hilo 
-
--
---
--
----
-----------------
-
-pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
+A função compile define-se como um hilomorfismo, pois queremos primeiramente transformar a String, através do anamorfismo divCompile, numa estrutura que representa uma árvore binária de expressões em que as operações se encontram na raiz e nas folhas os números, sendo que as operações vão aumentando de prioridade assim que se desce na árvore.
 
 Para definir divCompile começamos por dividir em 2 casos: se a String só tiver um elemento estamos na presença de um número; caso contrário estamos perante uma expressão e para tal temos de partir a String em 3 substrings:
 \begin{itemize}
@@ -1282,19 +1262,6 @@ auxDivComp (h:t) c p
 slice :: Int -> Int -> String -> String
 slice start end string = if(head(firstslice)=='(') then (slice (start+1) (end-1) string) else firstslice
     where firstslice = take(end - start) (drop start string) 
-
--- versao alternativa pointfree divcompile e slice
-
-divCompile' :: String -> Either Int (Op,(String , String))
-divCompile' [x] = i1 (digitToInt(x))
-divCompile' l = i2( (Op [c]) , (  slice'(l,(0,p)) , slice'(l,((p+1),(length(l)))) )) 
-    where (p , c) = auxDivComp l 0 0
-
-substring :: (String,(Int,Int)) -> String
-substring = ((uncurry take).swap. (id><(uncurry subtract))).(split ((uncurry drop).swap.(id><p1)) p2)
-
-slice' :: (String,(Int,Int)) -> String
-slice' = (cond (('('==).head.p1) (slice'.(id><(succ><pred)).p2) p1).(split substring id)
 \end{code}
 
 De seguida definimos o catamorfismo conqCompile que apenas tem de transformar o resultado do anamorfismo no Codigo correspondente, caso seja número ou operação:
@@ -1308,9 +1275,6 @@ auxNum a = ["PUSH "++show(a)]
 auxOp (op,(c1,c2)) 
                 | op == (Op "+") = c1 ++ c2 ++ ["ADD"]
                 | op == (Op "*") = c1 ++ c2 ++ ["MUL"]
-
--- versao alternativa pointfree conqcompile e auxiliares
-conqCompile' = either (singl.conc.(split (const "PUSH ") show)) (cond (((Op "+")==).p1) (conc.swap.((const ["ADD"])><conc)) (conc.swap.((const ["MUL"])><conc)) )
 \end{code}
 
 Para definir o show' começamos por desenhar o seu diagrama como um catamorfismo:
@@ -1350,6 +1314,8 @@ showOp (op,(s1,s2))
 
 \subsection*{Problema 2}
 
+Primeiro definimos os in e out e a partir destes a base, que de forma imediata nos deu o catamorfismo, anamorfismo e hilomorfismo:
+
 \begin{code}
 inL2D :: Either a (b, (X a b,X a b)) -> X a b
 inL2D = either Unid (uncurry(uncurry . Comp))
@@ -1371,9 +1337,9 @@ hyloL2D h g = cataL2D h . anaL2D g
 
 collectLeafs = cataL2D (either singl (conc.p2))
 
+\end{code}
 
-{---------------------?????----------------------}
-
+\begin{code}
 dimen :: X Caixa Tipo -> (Float, Float)
 dimen = undefined
 
@@ -1381,11 +1347,10 @@ calcOrigins :: ((X Caixa Tipo),Origem) -> X (Caixa,Origem) ()
 calcOrigins = undefined
 
 calc :: Tipo -> Origem -> (Float, Float) -> Origem
-calc = undefined 
+calc =undefined
 
 caixasAndOrigin2Pict = undefined
 
-{---------------------?????----------------------}
 \end{code}
 
 \subsection*{Problema 3}
@@ -1524,36 +1489,78 @@ hyloFS g h = cataFS g . anaFS h
 
 2.
 
--------------------------
-
-falta diagrama do cataFS
-
---------------------------------
-
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |FS a b|
+           \ar[d]_-{|cataFS g|}
+&
+    |(a >< (b + FS a b))*|
+           \ar[d]^{|map(id >< (id + (cataFS g))*|}
+           \ar[l]_-{|inFS|}
+\\
+     |c|
+&
+     |(a >< (b + c))*|
+           \ar[l]^-{|g|}
+}
+\end{eqnarray*}
 
 3.
 
-faltam algumas e explicar raciocinios ------------------------
-Outras funções pedidas:
-\begin{code}
-{----------feito------------------------------}
 
+Outras funções pedidas:
+
+a)
+\begin{code}
 check :: (Eq a) => FS a b -> Bool
-check = cataFS( parbool.(split (repetidos.map(p1)) (tof.map((either true id).p2)) ))
+check = cataFS( parbool.(split (repetidos.map(p1)) (check'.map((either true id).p2)) ))
 
 parbool (a,b) = if (a == False || b == False) then False else True
 
-tof [] = True
-tof (x:xs) = if(x == False) then False else tof xs
+check' [] = True
+check' (x:xs) = if(x == False) then False else check' xs
 
 repetidos [] = True
 repetidos (h:t) = if(x h t) then False else repetidos t
                 where 
                   x h [] = False
                   x h (y:ys) = if(h==y) then True else x h ys
+\end{code}
 
-{----------feito----------------------------------}
+Diagrama de check definido como um catamorfismo:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |FS a b|
+           \ar[d]_-{|check|}
+&
+    |(a >< (b + FS a b))*|
+           \ar[d]^{|map(id >< (id + check)*|}
+           \ar[l]_-{|inFS|}
+\\
+     |Bool|
+&
+     |(a >< (b + Bool))*|
+           \ar[l]^-{|f|}
+}
+\end{eqnarray*}
 
+Diagrama de f:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |(a >< (b + Bool))*|
+           \ar[d]_-{|<repetidos.map(p1),check'.(map([true,id].p2)) >|}
+\\
+    |Bool >< Bool|
+           \ar[d]_-{|parbool|}
+\\
+    |Bool|
+}
+\end{eqnarray*}
+
+
+b)
+
+\begin{code}
 tar :: FS a b -> [(Path a, b)]
 tar = cataFS( disc.map( auxtar ) )
 
@@ -1563,33 +1570,83 @@ auxtar (a,(Right ((x,y):xs))) = ([a]++x,y) : auxtar (a,Right xs)
 
 disc [] = []
 disc (x:xs) = x ++ disc xs
+\end{code}
 
-{-------feito----------------------------------}
+Diagrama de tar:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |FS a b|
+           \ar[d]_-{|tar|}
+&
+    |(a >< (b + FS a b))*|
+           \ar[d]^{|map(id >< (id + tar)*|}
+           \ar[l]_-{|inFS|}
+\\
+     |(Path a >< b)*|
+&
+     |(a >< (b + (Path a >< b)*))*|
+           \ar[l]^-{|disc.map(auxtar)|}
+}
+\end{eqnarray*}
 
+c)
+\begin{code}
 untar :: (Eq a) => [(Path a, b)] -> FS a b
 untar = joinDupDirs.anaFS( map(intar) ) 
 
 intar ([a],b) = (a,i1 b)
 intar ((x:xs),b) = (x,i2 [(xs,b)])
 
-{----------------- feito ----------------------}
+\end{code}
+
+Diagrama do anamorfismo presente em untar:
+\begin{eqnarray*}
+\xymatrix@@C=2cm{
+    |(a >< (b + (Path a >< b)*))*|
+           \ar[d]_-{|map(id >< (id + untar)*|}
+&
+    |(Path a >< b)*|
+           \ar[d]^{|untar|}
+           \ar[l]_-{|map(intar)|}
+\\
+     |(a >< (b + FS a b))*|
+&
+     |FS a b|
+           \ar[l]^-{|outFS|}
+}
+\end{eqnarray*}
+
+d)
+Para definir o find, fizemos uso da função tar para dar todos os paths existentes no sistema de ficheiros, que depois percorremos à procura do ficheiro prentendido através da função auxfind. 
+\begin{code}
 
 find :: (Eq a) => a -> FS a b -> [Path a]
-find = curry ( teste1.(id><tar))
+find = curry ( auxfind.(id><tar))
 
-teste1 :: (Eq a) => (a, [(Path a, b)]) -> [Path a]
-teste1 (a,[]) = []
-teste1 (a,(l,_):xs) = if(last(l)==a) then l:teste1(a,xs) else teste1(a,xs)
+auxfind :: (Eq a) => (a, [(Path a, b)]) -> [Path a]
+auxfind (a,[]) = []
+auxfind (a,(l,_):xs) = if(last(l)==a) then l:auxfind(a,xs) else auxfind(a,xs)
 
-{---------------feito ---------------------------}
+\end{code}
+
+
+e)
+
+Para acrescentar um novo ficheiro utilizamos a função tar para transformar o sistema de ficheiros na sua lista de paths e conteúdos respetivos e adicionamos o ficheiro novo a essa lista e fazemos o untar para voltarmos ao sistema de ficheiros:
+\begin{code}
 
 new :: (Eq a) => Path a -> b -> FS a b -> FS a b
 new = uncurriedNew
 
 uncurriedNew p b fs = untar([(p,b)]++tar(fs))
 
-{-----feito-------------------------------}
+\end{code}
 
+f)
+
+Para definir a função de cópia, utilizamos mais uma vez tar para através da função getconteudo obtermos o conteudo associado ao path de origem. De seguida acrescentamos o par (path destino,conteudo) ao tar do sistema de ficheiros e fazemos o untar, tendo assim criado um novo ficheiro com o conteúdo do ficheiro original.
+
+\begin{code}
 cp :: (Eq a) => Path a -> Path a -> FS a b -> FS a b
 cp = cpaux
 
@@ -1601,18 +1658,22 @@ cpaux s d f = if(s==[] || d==[]) then f else untar([(d,conteudo)]++ltar)
 getconteudo :: (Eq a) => Path a -> [(Path a, b)] -> b
 getconteudo d [(l,b)] = b
 getconteudo d ((l,b):xs) = if(l==d) then b else (getconteudo d xs)
+\end{code}
 
-
-{-----faltam fazer-------------------------------}
-
+g)
+\begin{code}
 rm :: (Eq a) => (Path a) -> (FS a b) -> FS a b
 rm = undefined
 
 auxJoin :: ([(a, Either b c)],d) -> [(a, Either b (d,c))]
 auxJoin = undefined
+\end{code}
 
-{-----feito-------------------------------}
+Valorização:
 
+Definimos um anamorfismo sobre Exp que a cada elemento presente no sistema de ficheiros, $|(a,Node a b)|$ através da função inTerm obtemos pares nome e sistema de ficheiros inferior, que será vazio caso seja um ficheiro.
+No final através da função rootTerm acrescentámos a root do sistema.
+\begin{code}
 cFS2Exp :: a -> FS a b -> (Exp () a)
 cFS2Exp = curry ( rootTerm.(id >< map( anaExp(inTerm)).noFS) )
 

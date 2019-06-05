@@ -2079,8 +2079,11 @@ Para definir o show' começamos por desenhar o seu diagrama como um catamorfismo
 \end{eqnarray*}
 
 e temos assim de definir showNum e showOp.
+
 Para showNum apenas temos de fazer o show desse mesmo número, e caso seja negativo, colocar parênteses à volta do mesmo.
+
 Em showOp temos de verificar de que tipo de operação se trata e apenas colocar as expressões já calculadas pela ordem correta.
+
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{13}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -2275,24 +2278,10 @@ Valorização:
 \end{tabbing}
 
 \subsection*{Problema 4}
-Triologia ``ana-cata-hilo":
+1.
 
+Para definir a função outFS recorremos a uma função auxiliar que apenas faz uma injeção à esquerda ou à direita, consoante o parâmetro for um Ficheiro(File) ou uma Diretoria(Dir), respetivamente. Definida esta função auxiliar, o outFS é um map com o produto da função identidade e da função outNode, definida por nós. 
 
-apagar depois------------
-         
-  inFS :: [(a, Either b (FS a b))] -> FS a b
-  inFS = FS . map (id >< inNode)
-
-  inNode :: Either b (FS a b) -> Node a b
-  inNode = either File Dir
-auxCheck .cataFS(  map ( [id, id].outNode.p2))
-exemplo
-(inFS.outFS) (FS [("f1", File "Ola"),("d1", Dir (FS [("f2", File "Ole"),("f3", File "Ole")]))])
-
-cataFS( tof.concat.( (auxCheck.map(id)) >< map([const True,id]) ))
-------------------
-
-ta tudo feito aqui falta talvez explicar---------------
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
@@ -2301,9 +2290,24 @@ ta tudo feito aqui falta talvez explicar---------------
 \>[B]{}\Varid{outNode}\;(\Conid{File}\;\Varid{f})\mathrel{=}(i_1\;\Varid{f}){}\<[E]%
 \\
 \>[B]{}\Varid{outNode}\;(\Conid{Dir}\;\Varid{f})\mathrel{=}(i_2\;\Varid{f}){}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Como o baseFS vai ser aplicado a cada elemento que sai do outFS, temos um map do produto da função f com a soma das funções g e h.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{baseFS}\;\Varid{f}\;\Varid{g}\;\Varid{h}\mathrel{=}\map \;(\Varid{f}\times(\Varid{g}+\Varid{h})){}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+
+Após definir o baseFS, obtemos de forma imediata o cataFS, o anaFS e o hyloFS.
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{cataFS}\mathbin{::}([\mskip1.5mu (\Varid{a},\Varid{b}+\Varid{c})\mskip1.5mu]\to \Varid{c})\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to \Varid{c}{}\<[E]%
 \\
 \>[B]{}\Varid{cataFS}\;\Varid{g}\mathrel{=}\Varid{g}\comp (\Varid{recFS}\;(\Varid{cataFS}\;\Varid{g}))\comp \Varid{outFS}{}\<[E]%
@@ -2315,27 +2319,45 @@ ta tudo feito aqui falta talvez explicar---------------
 \>[B]{}\Varid{hyloFS}\;\Varid{g}\;\Varid{h}\mathrel{=}\Varid{cataFS}\;\Varid{g}\comp \Varid{anaFS}\;\Varid{h}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
----------------------------------------------------------
+
+2.
+
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{\Conid{FS}\;\Varid{a}\;\Varid{b}}
+           \ar[d]_-{\ensuremath{\Varid{cataFS}\;\Varid{g}}}
+&
+    \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}\Conid{FS}\;\Varid{a}\;\Varid{b}))\mathbin{*}}
+           \ar[d]^{\ensuremath{\map \;(\Varid{id}\times(\Varid{id}\mathbin{+}(\Varid{cataFS}\;\Varid{g}))\mathbin{*}}}
+           \ar[l]_-{\ensuremath{\Varid{inFS}}}
+\\
+     \ensuremath{\Varid{c}}
+&
+     \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}\Varid{c}))\mathbin{*}}
+           \ar[l]^-{\ensuremath{\Varid{g}}}
+}
+\end{eqnarray*}
+
+3.
 
 
-faltam algumas e explicar raciocinios ------------------------
 Outras funções pedidas:
+
+a)
 \begin{hscode}\SaveRestoreHook
 \column{B}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{17}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{19}{@{}>{\hspre}l<{\hspost}@{}}%
 \column{E}{@{}>{\hspre}l<{\hspost}@{}}%
-\>[B]{}\mbox{\commentbegin ---------feito----------------------------- \commentend}{}\<[E]%
-\\[\blanklineskip]%
 \>[B]{}\Varid{check}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow \Conid{FS}\;\Varid{a}\;\Varid{b}\to \Conid{Bool}{}\<[E]%
 \\
-\>[B]{}\Varid{check}\mathrel{=}\Varid{cataFS}\;(\Varid{parbool}\comp \conj{\Varid{repetidos}\comp \map \;(\p1)}{\Varid{tof}\comp \map \;(\alt{\Varid{true}}{\Varid{id}}\comp \p2)}){}\<[E]%
+\>[B]{}\Varid{check}\mathrel{=}\Varid{cataFS}\;(\Varid{parbool}\comp \conj{\Varid{repetidos}\comp \map \;(\p1)}{\Varid{check'}\comp \map \;(\alt{\Varid{true}}{\Varid{id}}\comp \p2)}){}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{parbool}\;(\Varid{a},\Varid{b})\mathrel{=}\mathbf{if}\;(\Varid{a}\equiv \Conid{False}\mathrel{\vee}\Varid{b}\equiv \Conid{False})\;\mathbf{then}\;\Conid{False}\;\mathbf{else}\;\Conid{True}{}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\Varid{tof}\;[\mskip1.5mu \mskip1.5mu]\mathrel{=}\Conid{True}{}\<[E]%
+\>[B]{}\Varid{check'}\;[\mskip1.5mu \mskip1.5mu]\mathrel{=}\Conid{True}{}\<[E]%
 \\
-\>[B]{}\Varid{tof}\;(\Varid{x}\mathbin{:}\Varid{xs})\mathrel{=}\mathbf{if}\;(\Varid{x}\equiv \Conid{False})\;\mathbf{then}\;\Conid{False}\;\mathbf{else}\;\Varid{tof}\;\Varid{xs}{}\<[E]%
+\>[B]{}\Varid{check'}\;(\Varid{x}\mathbin{:}\Varid{xs})\mathrel{=}\mathbf{if}\;(\Varid{x}\equiv \Conid{False})\;\mathbf{then}\;\Conid{False}\;\mathbf{else}\;\Varid{check'}\;\Varid{xs}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{repetidos}\;[\mskip1.5mu \mskip1.5mu]\mathrel{=}\Conid{True}{}\<[E]%
 \\
@@ -2349,9 +2371,45 @@ Outras funções pedidas:
 \\
 \>[17]{}\hsindent{2}{}\<[19]%
 \>[19]{}\Varid{x}\;\Varid{h}\;(\Varid{y}\mathbin{:}\Varid{ys})\mathrel{=}\mathbf{if}\;(\Varid{h}\equiv \Varid{y})\;\mathbf{then}\;\Conid{True}\;\mathbf{else}\;\Varid{x}\;\Varid{h}\;\Varid{ys}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin ---------feito--------------------------------- \commentend}{}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Diagrama de check definido como um catamorfismo:
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{\Conid{FS}\;\Varid{a}\;\Varid{b}}
+           \ar[d]_-{\ensuremath{\Varid{check}}}
+&
+    \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}\Conid{FS}\;\Varid{a}\;\Varid{b}))\mathbin{*}}
+           \ar[d]^{\ensuremath{\map \;(\Varid{id}\times(\Varid{id}\mathbin{+}\Varid{check})\mathbin{*}}}
+           \ar[l]_-{\ensuremath{\Varid{inFS}}}
+\\
+     \ensuremath{\Conid{Bool}}
+&
+     \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}\Conid{Bool}))\mathbin{*}}
+           \ar[l]^-{\ensuremath{\Varid{f}}}
+}
+\end{eqnarray*}
+
+Diagrama de f:
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}\Conid{Bool}))\mathbin{*}}
+           \ar[d]_-{\ensuremath{\mathbin{<}\Varid{repetidos}\comp \map \;(\p1),\Varid{check'}\comp (\map \;([\mskip1.5mu \Varid{true},\Varid{id}\mskip1.5mu]\comp \p2))\mathbin{>}}}
+\\
+    \ensuremath{\Conid{Bool}\times\Conid{Bool}}
+           \ar[d]_-{\ensuremath{\Varid{parbool}}}
+\\
+    \ensuremath{\Conid{Bool}}
+}
+\end{eqnarray*}
+
+
+b)
+
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{tar}\mathbin{::}\Conid{FS}\;\Varid{a}\;\Varid{b}\to [\mskip1.5mu (\Conid{Path}\;\Varid{a},\Varid{b})\mskip1.5mu]{}\<[E]%
 \\
 \>[B]{}\Varid{tar}\mathrel{=}\Varid{cataFS}\;(\Varid{disc}\comp \map \;(\Varid{auxtar})){}\<[E]%
@@ -2365,9 +2423,30 @@ Outras funções pedidas:
 \>[B]{}\Varid{disc}\;[\mskip1.5mu \mskip1.5mu]\mathrel{=}[\mskip1.5mu \mskip1.5mu]{}\<[E]%
 \\
 \>[B]{}\Varid{disc}\;(\Varid{x}\mathbin{:}\Varid{xs})\mathrel{=}\Varid{x}\plus \Varid{disc}\;\Varid{xs}{}\<[E]%
-\\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin ------feito--------------------------------- \commentend}{}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Diagrama de tar:
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{\Conid{FS}\;\Varid{a}\;\Varid{b}}
+           \ar[d]_-{\ensuremath{\Varid{tar}}}
+&
+    \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}\Conid{FS}\;\Varid{a}\;\Varid{b}))\mathbin{*}}
+           \ar[d]^{\ensuremath{\map \;(\Varid{id}\times(\Varid{id}\mathbin{+}\Varid{tar})\mathbin{*}}}
+           \ar[l]_-{\ensuremath{\Varid{inFS}}}
+\\
+     \ensuremath{(\Conid{Path}\;\Varid{a}\times\Varid{b})\mathbin{*}}
+&
+     \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}(\Conid{Path}\;\Varid{a}\times\Varid{b})\mathbin{*}))\mathbin{*}}
+           \ar[l]^-{\ensuremath{\Varid{disc}\comp \map \;(\Varid{auxtar})}}
+}
+\end{eqnarray*}
+
+c)
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\Varid{untar}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow [\mskip1.5mu (\Conid{Path}\;\Varid{a},\Varid{b})\mskip1.5mu]\to \Conid{FS}\;\Varid{a}\;\Varid{b}{}\<[E]%
 \\
 \>[B]{}\Varid{untar}\mathrel{=}\Varid{joinDupDirs}\comp \Varid{anaFS}\;(\map \;(\Varid{intar})){}\<[E]%
@@ -2375,7 +2454,31 @@ Outras funções pedidas:
 \>[B]{}\Varid{intar}\;([\mskip1.5mu \Varid{a}\mskip1.5mu],\Varid{b})\mathrel{=}(\Varid{a},i_1\;\Varid{b}){}\<[E]%
 \\
 \>[B]{}\Varid{intar}\;((\Varid{x}\mathbin{:}\Varid{xs}),\Varid{b})\mathrel{=}(\Varid{x},i_2\;[\mskip1.5mu (\Varid{xs},\Varid{b})\mskip1.5mu]){}\<[E]%
-\\[\blanklineskip]%
+\ColumnHook
+\end{hscode}\resethooks
+
+Diagrama do anamorfismo presente em untar:
+\begin{eqnarray*}
+\xymatrix@C=2cm{
+    \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}(\Conid{Path}\;\Varid{a}\times\Varid{b})\mathbin{*}))\mathbin{*}}
+           \ar[d]_-{\ensuremath{\map \;(\Varid{id}\times(\Varid{id}\mathbin{+}\Varid{untar})\mathbin{*}}}
+&
+    \ensuremath{(\Conid{Path}\;\Varid{a}\times\Varid{b})\mathbin{*}}
+           \ar[d]^{\ensuremath{\Varid{untar}}}
+           \ar[l]_-{\ensuremath{\map \;(\Varid{intar})}}
+\\
+     \ensuremath{(\Varid{a}\times(\Varid{b}\mathbin{+}\Conid{FS}\;\Varid{a}\;\Varid{b}))\mathbin{*}}
+&
+     \ensuremath{\Conid{FS}\;\Varid{a}\;\Varid{b}}
+           \ar[l]^-{\ensuremath{\Varid{outFS}}}
+}
+\end{eqnarray*}
+d)
+\begin{hscode}\SaveRestoreHook
+\column{B}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{11}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{13}{@{}>{\hspre}l<{\hspost}@{}}%
+\column{E}{@{}>{\hspre}l<{\hspost}@{}}%
 \>[B]{}\mbox{\commentbegin ---------------- feito --------------------- \commentend}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{find}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow \Varid{a}\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to [\mskip1.5mu \Conid{Path}\;\Varid{a}\mskip1.5mu]{}\<[E]%
@@ -2396,11 +2499,30 @@ Outras funções pedidas:
 \\[\blanklineskip]%
 \>[B]{}\Varid{uncurriedNew}\;\Varid{p}\;\Varid{b}\;\Varid{fs}\mathrel{=}\Varid{untar}\;([\mskip1.5mu (\Varid{p},\Varid{b})\mskip1.5mu]\plus \Varid{tar}\;(\Varid{fs})){}\<[E]%
 \\[\blanklineskip]%
-\>[B]{}\mbox{\commentbegin ----faltam fazer------------------------------ \commentend}{}\<[E]%
+\>[B]{}\mbox{\commentbegin ----feito------------------------------ \commentend}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{cp}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow \Conid{Path}\;\Varid{a}\to \Conid{Path}\;\Varid{a}\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to \Conid{FS}\;\Varid{a}\;\Varid{b}{}\<[E]%
 \\
-\>[B]{}\Varid{cp}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{cp}\mathrel{=}\Varid{cpaux}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{cpaux}\;\Varid{s}\;\Varid{d}\;\Varid{f}\mathrel{=}\mathbf{if}\;(\Varid{s}\equiv [\mskip1.5mu \mskip1.5mu]\mathrel{\vee}\Varid{d}\equiv [\mskip1.5mu \mskip1.5mu])\;\mathbf{then}\;\Varid{f}\;\mathbf{else}\;\Varid{untar}\;([\mskip1.5mu (\Varid{d},\Varid{conteudo})\mskip1.5mu]\plus \Varid{ltar}){}\<[E]%
+\\
+\>[B]{}\hsindent{11}{}\<[11]%
+\>[11]{}\mathbf{where}{}\<[E]%
+\\
+\>[11]{}\hsindent{2}{}\<[13]%
+\>[13]{}\Varid{ltar}\mathrel{=}\Varid{tar}\;(\Varid{f}){}\<[E]%
+\\
+\>[11]{}\hsindent{2}{}\<[13]%
+\>[13]{}\Varid{conteudo}\mathrel{=}\Varid{getconteudo}\;\Varid{s}\;\Varid{ltar}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{getconteudo}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow \Conid{Path}\;\Varid{a}\to [\mskip1.5mu (\Conid{Path}\;\Varid{a},\Varid{b})\mskip1.5mu]\to \Varid{b}{}\<[E]%
+\\
+\>[B]{}\Varid{getconteudo}\;\Varid{d}\;[\mskip1.5mu (\Varid{l},\Varid{b})\mskip1.5mu]\mathrel{=}\Varid{b}{}\<[E]%
+\\
+\>[B]{}\Varid{getconteudo}\;\Varid{d}\;((\Varid{l},\Varid{b})\mathbin{:}\Varid{xs})\mathrel{=}\mathbf{if}\;(\Varid{l}\equiv \Varid{d})\;\mathbf{then}\;\Varid{b}\;\mathbf{else}\;(\Varid{getconteudo}\;\Varid{d}\;\Varid{xs}){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\mbox{\commentbegin ----faltam fazer------------------------------ \commentend}{}\<[E]%
 \\[\blanklineskip]%
 \>[B]{}\Varid{rm}\mathbin{::}(\Conid{Eq}\;\Varid{a})\Rightarrow (\Conid{Path}\;\Varid{a})\to (\Conid{FS}\;\Varid{a}\;\Varid{b})\to \Conid{FS}\;\Varid{a}\;\Varid{b}{}\<[E]%
 \\
@@ -2410,9 +2532,21 @@ Outras funções pedidas:
 \\
 \>[B]{}\Varid{auxJoin}\mathrel{=}\bot {}\<[E]%
 \\[\blanklineskip]%
+\>[B]{}\mbox{\commentbegin ----feito------------------------------ \commentend}{}\<[E]%
+\\[\blanklineskip]%
 \>[B]{}\Varid{cFS2Exp}\mathbin{::}\Varid{a}\to \Conid{FS}\;\Varid{a}\;\Varid{b}\to (\Conid{Exp}\;()\;\Varid{a}){}\<[E]%
 \\
-\>[B]{}\Varid{cFS2Exp}\mathrel{=}\bot {}\<[E]%
+\>[B]{}\Varid{cFS2Exp}\mathrel{=}\Varid{curry}\;(\Varid{rootTerm}\comp (\Varid{id}\times\map \;(\Varid{anaExp}\;(\Varid{inTerm}))\comp \Varid{noFS})){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{noFS}\;(\Conid{FS}\;\Varid{l})\mathrel{=}\Varid{l}{}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{inTerm}\mathbin{::}(\Varid{a},\Conid{Node}\;\Varid{a}\;\Varid{b})\to ()+(\Varid{a},[\mskip1.5mu (\Varid{a},\Conid{Node}\;\Varid{a}\;\Varid{b})\mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{inTerm}\;(\Varid{a},\Conid{File}\;\Varid{b})\mathrel{=}i_2\;(\Varid{a},[\mskip1.5mu \mskip1.5mu]){}\<[E]%
+\\
+\>[B]{}\Varid{inTerm}\;(\Varid{a},\Conid{Dir}\;(\Conid{FS}\;\Varid{c}))\mathrel{=}i_2\;(\Varid{a},\Varid{c}){}\<[E]%
+\\[\blanklineskip]%
+\>[B]{}\Varid{rootTerm}\;(\Varid{a},\Varid{b})\mathrel{=}\Conid{Term}\;\Varid{a}\;\Varid{b}{}\<[E]%
 \ColumnHook
 \end{hscode}\resethooks
 
