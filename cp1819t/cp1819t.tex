@@ -2243,6 +2243,38 @@ E obtemos assim a solução:
 \ColumnHook
 \end{hscode}\resethooks
 
+Valorização:
+
+\begin{tabbing}\tt
+~double~coss\char40{}double~x\char44{}int~n\char41{}\char123{}\\
+\tt ~~~\\
+\tt ~~~double~res~\char61{}~1\char59{}\\
+\tt ~~~double~h~\char61{}~\char45{}\char40{}x\char42{}x\char41{}\char47{}2\char59{}\\
+\tt ~~~double~a~\char61{}~3\char59{}\\
+\tt ~~~double~b~\char61{}~4\char59{}\\
+\tt ~\\
+\tt ~~~for~\char40{}int~i~\char61{}~1\char59{}~i~\char60{}\char61{}~n\char59{}~i\char43{}\char43{}\char41{}\char123{}~\\
+\tt ~~~~~\\
+\tt ~~~~~res~\char61{}~res~\char43{}~h\char59{}\\
+\tt ~~~~~h~\char61{}~h~\char42{}\char40{}\char40{}\char45{}\char40{}x\char42{}x\char41{}\char41{}\char47{}\char40{}a\char42{}b\char41{}\char41{}\char59{}\\
+\tt ~~~~~a~\char61{}~a~\char43{}~2\char59{}\\
+\tt ~~~~~b~\char61{}~b~\char43{}~2\char59{}\\
+\tt ~~~\char125{}\\
+\tt ~\\
+\tt ~~~return~res\char59{}\\
+\tt ~\char125{}\\
+\tt ~\\
+\tt ~int~main\char40{}int~argc\char44{}~char~const~\char42{}argv\char91{}\char93{}\char41{}\char123{}\\
+\tt ~~~if\char40{}argc~\char33{}\char61{}~3\char41{}\\
+\tt ~~~~~return~0\char59{}\\
+\tt ~\\
+\tt ~~~double~r~\char61{}~coss\char40{}atof\char40{}argv\char91{}1\char93{}\char41{}\char44{}atoi\char40{}argv\char91{}2\char93{}\char41{}\char41{}\char59{}\\
+\tt ~~~printf\char40{}\char34{}\char37{}\char46{}16f\char92{}n\char34{}\char44{}r\char41{}\char59{}\\
+\tt ~~~\\
+\tt ~~~return~0\char59{}\\
+\tt ~\char125{}
+\end{tabbing}
+
 \subsection*{Problema 4}
 Triologia ``ana-cata-hilo":
 
